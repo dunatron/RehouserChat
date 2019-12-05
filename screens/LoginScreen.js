@@ -1,4 +1,8 @@
-import React from "react";
+import { AuthSession } from "expo";
+import React, { useState } from "react";
+// import { useMutation } from "@apollo/react-hooks";
+import { Mutation } from "react-apollo";
+import { SIGNIN_MUTATION } from "../graphql/mutations";
 import {
   Container,
   Button,
@@ -6,79 +10,130 @@ import {
   Form,
   Item,
   Input,
-  Text
+  Text,
+  AsyncStorage
 } from "native-base";
+import { setAuthToken } from "../utils/setAuthToken";
 
-class Login extends React.Component {
-  constructor(props) {
-    super(props);
+const Login = props => {
+  // const [signIn, { loading, error, data }] = useMutation(SIGNIN_MUTATION);
+  console.log("Here is login screen");
+  console.log("What about me loginSCreen Props => ", props);
+  const [state, setState] = useState({
+    email: "",
+    emailError: false,
+    password: "",
+    passwordError: false
+  });
 
-    this.state = {
-      email: "",
-      emailError: false,
-      password: "",
-      passwordError: false
-    };
-  }
-
-  handleInputChange = (field, value) => {
+  const handleInputChange = (field, value) => {
     const newState = {
-      ...this.state,
+      ...state,
       [field]: value
     };
-    this.setState(newState);
+    setState(newState);
   };
 
-  handleSubmit = () => {
-    const { email, password } = this.state;
-    if (email.length === 0) {
-      return this.setState({ emailError: true });
+  const handleSubmit = signin => {
+    if (state.email.length === 0) {
+      return setState({ ...state, emailError: true });
     }
-    this.setState({ emailError: false });
+    setState({ ...state, emailError: false });
 
-    if (password.length === 0) {
-      return this.setState({ passwordError: true });
+    if (state.password.length === 0) {
+      return setState({ ...state, passwordError: true });
     }
-    this.setState({ passwordError: false });
-
-    return this.props.screenProps.changeLoginState(true);
+    setState({ ...state, passwordError: false });
+    handleLogin(signin);
   };
 
-  render() {
-    const { emailError, passwordError } = this.state;
+  const myFakeData = () => {
+    fetch("https://jsonplaceholder.typicode.com/todos/1")
+      .then(response => response.json())
+      .then(json => console.log(json));
+  };
 
-    return (
-      <Container>
-        <Content>
-          <Form>
-            <Item error={emailError}>
-              <Input
-                placeholder="Email"
-                onChangeText={value => this.handleInputChange("email", value)}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
-            </Item>
-            <Item error={passwordError}>
-              <Input
-                placeholder="Password"
-                onChangeText={value =>
-                  this.handleInputChange("password", value)
-                }
-                autoCapitalize="none"
-                autoCorrect={false}
-                secureTextEntry
-              />
-            </Item>
-          </Form>
-          <Button full onPress={this.handleSubmit}>
-            <Text>Sign In</Text>
-          </Button>
-        </Content>
-      </Container>
-    );
-  }
-}
+  /**
+   * do a query/mutation to login
+   */
+  const handleLogin = async signin => {
+    myFakeData();
+    const res = await signin({
+      variables: {
+        email: "test@test.com",
+        password: "test",
+        captchaToken: ""
+      }
+    });
+    console.log(res);
+    signIn({
+      variables: {
+        email: "test@test.com",
+        password: "test",
+        captchaToken: ""
+      }
+      // refetchQueries: [{ query: CURRENT_USER_QUERY }]
+    });
+
+    const token = "abc";
+    handleLoginSuccess(token);
+  };
+
+  const handleLoginSuccess = token => {
+    setAuthToken(token);
+    // return props.screenProps.changeLoginState(true);
+    props.navigation.navigate("App");
+  };
+
+  return (
+    <Container>
+      <Content>
+        <Form>
+          <Item error={state.emailError}>
+            <Input
+              placeholder="Email"
+              onChangeText={value => handleInputChange("email", value)}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+          </Item>
+          <Item error={state.passwordError}>
+            <Input
+              placeholder="Password"
+              onChangeText={value => handleInputChange("password", value)}
+              autoCapitalize="none"
+              autoCorrect={false}
+              secureTextEntry
+            />
+          </Item>
+        </Form>
+        <Button
+          full
+          onPress={() => {
+            const res = props.client.mutation({
+              mutation: SIGNIN_MUTATION,
+              variables: {
+                email: "test@test.com",
+                password: "test",
+                captchaToken: ""
+              }
+            });
+            console.log("Client res => ", res);
+          }}
+        >
+          <Text>Sign In</Text>
+        </Button>
+        {/* <Mutation mutation={SIGNIN_MUTATION}>
+          {(signin, { data }) => (
+            <Button full onPress={() => handleSubmit(signin)}>
+              <Text>Sign In</Text>
+            </Button>
+          )}
+        </Mutation> */}
+      </Content>
+    </Container>
+  );
+};
 
 export default Login;

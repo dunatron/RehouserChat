@@ -1,22 +1,23 @@
 import React from "react";
 import { Container, Text, Button, Content } from "native-base";
+import { AsyncStorage } from "react-native";
 
-class Logout extends React.Component {
-  handleLogout = () => {
-    return this.props.screenProps.changeLoginState(false);
+const ProfileScreen = props => {
+  const handleLogout = async () => {
+    // return props.screenProps.changeLoginState(false);
+    await AsyncStorage.clear();
+    props.navigation.navigate("AuthLoading");
   };
 
-  render() {
-    return (
-      <Container>
-        <Content>
-          <Button full onPress={this.handleLogout}>
-            <Text>Log Out</Text>
-          </Button>
-        </Content>
-      </Container>
-    );
-  }
-}
+  return (
+    <Container>
+      <Content>
+        <Button full onPress={handleLogout}>
+          <Text>Log Out</Text>
+        </Button>
+      </Content>
+    </Container>
+  );
+};
 
-export default Logout;
+export default ProfileScreen;
