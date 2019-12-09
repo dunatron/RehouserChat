@@ -1,6 +1,6 @@
 import { AuthSession } from "expo";
 import React, { useState } from "react";
-// import { useMutation } from "@apollo/react-hooks";
+import { useMutation } from "@apollo/react-hooks";
 import { Mutation } from "react-apollo";
 import { SIGNIN_MUTATION } from "../graphql/mutations";
 import {
@@ -14,11 +14,55 @@ import {
   AsyncStorage
 } from "native-base";
 import { setAuthToken } from "../utils/setAuthToken";
+import graphqlTag from "graphql-tag";
+
+const CREATE_CHAT_MUTATION = graphqlTag`
+mutation CREATE_CHAT_MUTATION(
+  $data: ChatCreateInput!
+) {
+  createChat(data: $data) {
+    id
+    name
+    lastMessage {
+      id
+      isMine
+    }
+    participants {
+      id
+    }
+  }
+}
+`;
+
+const QUERY_CHATS = graphqlTag`
+query queryChats {
+  chats {
+    id
+    name
+    participants {
+      id
+      firstName
+    }
+  }
+}
+`;
+
+const TEST_LOGIN_MUTATION = graphqlTag`
+mutation login {
+  signin(email:"heath.dunlop.hd@gmail.com", password:"test", captchaToken:"test") {
+    email
+  }
+}
+`;
 
 const Login = props => {
-  // const [signIn, { loading, error, data }] = useMutation(SIGNIN_MUTATION);
-  console.log("Here is login screen");
-  console.log("What about me loginSCreen Props => ", props);
+  const [signIn, { loading, error, data }] = useMutation(TEST_LOGIN_MUTATION);
+  const [addChat, addChatProps] = useMutation(CREATE_CHAT_MUTATION);
+
+  console.log("Signin loading => ", loading);
+  console.log("Signin error => ", error);
+  console.log("Signin data => ", data);
+
   const [state, setState] = useState({
     email: "",
     emailError: false,
@@ -34,7 +78,7 @@ const Login = props => {
     setState(newState);
   };
 
-  const handleSubmit = signin => {
+  const handleSubmit = () => {
     if (state.email.length === 0) {
       return setState({ ...state, emailError: true });
     }
@@ -44,29 +88,14 @@ const Login = props => {
       return setState({ ...state, passwordError: true });
     }
     setState({ ...state, passwordError: false });
-    handleLogin(signin);
-  };
-
-  const myFakeData = () => {
-    fetch("https://jsonplaceholder.typicode.com/todos/1")
-      .then(response => response.json())
-      .then(json => console.log(json));
+    handleLogin();
   };
 
   /**
    * do a query/mutation to login
    */
-  const handleLogin = async signin => {
-    myFakeData();
-    const res = await signin({
-      variables: {
-        email: "test@test.com",
-        password: "test",
-        captchaToken: ""
-      }
-    });
-    console.log(res);
-    signIn({
+  const handleLogin = async () => {
+    const res = await signIn({
       variables: {
         email: "test@test.com",
         password: "test",
@@ -74,9 +103,32 @@ const Login = props => {
       }
       // refetchQueries: [{ query: CURRENT_USER_QUERY }]
     });
+    console.log("res => ", res);
+    if (res.data.signin.email === state.email) {
+      const token = "abc";
+      handleLoginSuccess(token);
+    }
+    // addChat({
+    //   variables: {
+    //     data: {
+    //       name: "Heath & Jon Chat 2",
+    //       participants: {
+    //         connect: [
+    //           {
+    //             id: "ck2k0095umh5l0b099487efci"
+    //           },
+    //           {
+    //             id: "ck2k1obb418ua0b00jlbzqpy8"
+    //           }
+    //         ]
+    //       }
+    //     }
+    //   },
+    //   refetchQueries: [{ query: QUERY_CHATS }]
+    // });
 
-    const token = "abc";
-    handleLoginSuccess(token);
+    // const token = "abc";
+    // handleLoginSuccess(token);
   };
 
   const handleLoginSuccess = token => {
@@ -108,7 +160,10 @@ const Login = props => {
             />
           </Item>
         </Form>
-        <Button
+        <Button full onPress={() => handleSubmit()}>
+          <Text>Sign In</Text>
+        </Button>
+        {/* <Button
           full
           onPress={() => {
             const res = props.client.mutation({
@@ -123,7 +178,7 @@ const Login = props => {
           }}
         >
           <Text>Sign In</Text>
-        </Button>
+        </Button> */}
         {/* <Mutation mutation={SIGNIN_MUTATION}>
           {(signin, { data }) => (
             <Button full onPress={() => handleSubmit(signin)}>

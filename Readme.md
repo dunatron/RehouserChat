@@ -25,6 +25,8 @@ This is the RehouserChat project
 ## react-native/expo with react navigation with Apollo
 
 - Debug Links: https://github.com/apollographql/react-apollo/issues/3361
+- these guys have the answer [here](https://github.com/dai-shi/typescript-expo-apollo-boilerplate/blob/master/src/App.tsx)
+- try this [here](https://blog.axlight.com/posts/clean-expo-react-native-react-apollo-graphql-typescript-boilerplate/)
 
 ## Open debugger
 
