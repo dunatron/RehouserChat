@@ -1,11 +1,10 @@
 import React from "react";
 import { Container, Text, Button, Content } from "native-base";
-import { AsyncStorage } from "react-native";
+import { logoutUser } from "../utils/userAuth";
 
 const ProfileScreen = props => {
   const handleLogout = async () => {
-    // return props.screenProps.changeLoginState(false);
-    await AsyncStorage.clear();
+    await logoutUser();
     props.navigation.navigate("AuthLoading");
   };
 

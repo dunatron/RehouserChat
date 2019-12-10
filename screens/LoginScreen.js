@@ -1,20 +1,29 @@
 import { AuthSession } from "expo";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useMutation } from "@apollo/react-hooks";
 import { Mutation } from "react-apollo";
 import { SIGNIN_MUTATION } from "../graphql/mutations";
+import { setAuthToken } from "../utils/userAuth";
+import graphqlTag from "graphql-tag";
+import { WebView } from "react-native-webview";
 import {
   Container,
+  Text,
   Button,
   Content,
   Form,
   Item,
-  Input,
-  Text,
-  AsyncStorage
+  Input
 } from "native-base";
-import { setAuthToken } from "../utils/setAuthToken";
-import graphqlTag from "graphql-tag";
+
+import { View, StyleSheet } from "react-native";
+import Modal from "react-native-modal";
+
+import GoogleRecaptca from "../webviews/GoogleReCaptcha";
+
+const siteKey = "6Lc9N8MUAAAAAIJ6Q5SJ7pyZ4AX46ogbSuOyRbKU";
+// const baseUrl = "http://10.110.6.22";
+const baseUrl = "127.0.0.1";
 
 const CREATE_CHAT_MUTATION = graphqlTag`
 mutation CREATE_CHAT_MUTATION(
@@ -48,26 +57,27 @@ query queryChats {
 `;
 
 const TEST_LOGIN_MUTATION = graphqlTag`
-mutation login {
-  signin(email:"heath.dunlop.hd@gmail.com", password:"test", captchaToken:"test") {
+mutation login(
+  $email: String!
+  $password: String!
+  $captchaToken: String!) {
+  signin(email:$email, password:$password, captchaToken:$captchaToken) {
     email
+    token
   }
 }
 `;
 
 const Login = props => {
+  const [captchaModalIsVisible, setCaptchaModalIsVisible] = useState(false);
   const [signIn, { loading, error, data }] = useMutation(TEST_LOGIN_MUTATION);
-  const [addChat, addChatProps] = useMutation(CREATE_CHAT_MUTATION);
-
-  console.log("Signin loading => ", loading);
-  console.log("Signin error => ", error);
-  console.log("Signin data => ", data);
 
   const [state, setState] = useState({
     email: "",
     emailError: false,
     password: "",
-    passwordError: false
+    passwordError: false,
+    captchaToken: ""
   });
 
   const handleInputChange = (field, value) => {
@@ -78,6 +88,10 @@ const Login = props => {
     setState(newState);
   };
 
+  /**
+   * 1.
+   * handle submit will check entered data and if valid will launch the recaptcha modal
+   */
   const handleSubmit = () => {
     if (state.email.length === 0) {
       return setState({ ...state, emailError: true });
@@ -88,49 +102,49 @@ const Login = props => {
       return setState({ ...state, passwordError: true });
     }
     setState({ ...state, passwordError: false });
-    handleLogin();
+    // handleLogin();
+    if (state.captchaToken.length === 0) {
+      setCaptchaModalIsVisible(true);
+    }
   };
 
   /**
-   * do a query/mutation to login
+   * 2.
+   * is called on successful recaptcha token and will close the modal and
+   * start performing the login mutation
    */
-  const handleLogin = async () => {
+  const onMessage = token => {
+    setState({
+      ...state,
+      captchaToken: token
+    });
+    setCaptchaModalIsVisible(false);
+    handleLogin(token);
+  };
+
+  /**
+   * 3.
+   * do a query/mutation to login and recieve a login token to store
+   */
+  const handleLogin = async token => {
     const res = await signIn({
       variables: {
-        email: "test@test.com",
-        password: "test",
-        captchaToken: ""
+        email: state.email,
+        password: state.password,
+        captchaToken: token ? String(token) : String(state.captchaToken)
       }
       // refetchQueries: [{ query: CURRENT_USER_QUERY }]
     });
-    console.log("res => ", res);
     if (res.data.signin.email === state.email) {
-      const token = "abc";
+      const token = res.data.signin.token;
       handleLoginSuccess(token);
     }
-    // addChat({
-    //   variables: {
-    //     data: {
-    //       name: "Heath & Jon Chat 2",
-    //       participants: {
-    //         connect: [
-    //           {
-    //             id: "ck2k0095umh5l0b099487efci"
-    //           },
-    //           {
-    //             id: "ck2k1obb418ua0b00jlbzqpy8"
-    //           }
-    //         ]
-    //       }
-    //     }
-    //   },
-    //   refetchQueries: [{ query: QUERY_CHATS }]
-    // });
-
-    // const token = "abc";
-    // handleLoginSuccess(token);
   };
 
+  /**
+   * 4.
+   * If our login was a success we will store this token
+   */
   const handleLoginSuccess = token => {
     setAuthToken(token);
     // return props.screenProps.changeLoginState(true);
@@ -139,31 +153,37 @@ const Login = props => {
 
   return (
     <Container>
+      <Modal isVisible={captchaModalIsVisible}>
+        <GoogleRecaptca onMessage={onMessage} />
+      </Modal>
+      <Form>
+        <Item error={state.emailError}>
+          <Input
+            placeholder="Email"
+            onChangeText={value => handleInputChange("email", value)}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+        </Item>
+        <Item error={state.passwordError}>
+          <Input
+            placeholder="Password"
+            onChangeText={value => handleInputChange("password", value)}
+            autoCapitalize="none"
+            autoCorrect={false}
+            secureTextEntry
+          />
+        </Item>
+      </Form>
+      {loading && <Text>Doing stuff, please wait...</Text>}
       <Content>
-        <Form>
-          <Item error={state.emailError}>
-            <Input
-              placeholder="Email"
-              onChangeText={value => handleInputChange("email", value)}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-          </Item>
-          <Item error={state.passwordError}>
-            <Input
-              placeholder="Password"
-              onChangeText={value => handleInputChange("password", value)}
-              autoCapitalize="none"
-              autoCorrect={false}
-              secureTextEntry
-            />
-          </Item>
-        </Form>
-        <Button full onPress={() => handleSubmit()}>
+        <Button full onPress={() => handleSubmit()} disabled={loading}>
           <Text>Sign In</Text>
         </Button>
-        {/* <Button
+      </Content>
+
+      {/* <Button
           full
           onPress={() => {
             const res = props.client.mutation({
@@ -179,16 +199,22 @@ const Login = props => {
         >
           <Text>Sign In</Text>
         </Button> */}
-        {/* <Mutation mutation={SIGNIN_MUTATION}>
+      {/* <Mutation mutation={SIGNIN_MUTATION}>
           {(signin, { data }) => (
             <Button full onPress={() => handleSubmit(signin)}>
               <Text>Sign In</Text>
             </Button>
           )}
         </Mutation> */}
-      </Content>
     </Container>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: "#000",
+    flex: 1
+  }
+});
 
 export default Login;

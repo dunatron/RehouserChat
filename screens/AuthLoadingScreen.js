@@ -7,6 +7,7 @@ import {
   View,
   Text
 } from "react-native";
+import { getAuthToken } from "../utils/userAuth";
 
 /**
  * This screen is to fetch a userToken from localStorage. If one is found we navigate to the appScreen
@@ -44,7 +45,7 @@ import {
 const AuthLoadingScreen = props => {
   // Fetch the token from storage then navigate to our appropriate place
   const _bootstrapAsync = async () => {
-    const userToken = await AsyncStorage.getItem("userToken");
+    const userToken = await getAuthToken();
 
     // This will switch to the App screen or Auth screen and this loading
     // screen will be unmounted and thrown away.
