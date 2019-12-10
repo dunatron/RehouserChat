@@ -1,11 +1,9 @@
 import { AuthSession } from "expo";
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { useMutation } from "@apollo/react-hooks";
-import { Mutation } from "react-apollo";
 import { SIGNIN_MUTATION } from "../graphql/mutations";
 import { setAuthToken } from "../utils/userAuth";
 import graphqlTag from "graphql-tag";
-import { WebView } from "react-native-webview";
 import {
   Container,
   Text,
@@ -182,30 +180,6 @@ const Login = props => {
           <Text>Sign In</Text>
         </Button>
       </Content>
-
-      {/* <Button
-          full
-          onPress={() => {
-            const res = props.client.mutation({
-              mutation: SIGNIN_MUTATION,
-              variables: {
-                email: "test@test.com",
-                password: "test",
-                captchaToken: ""
-              }
-            });
-            console.log("Client res => ", res);
-          }}
-        >
-          <Text>Sign In</Text>
-        </Button> */}
-      {/* <Mutation mutation={SIGNIN_MUTATION}>
-          {(signin, { data }) => (
-            <Button full onPress={() => handleSubmit(signin)}>
-              <Text>Sign In</Text>
-            </Button>
-          )}
-        </Mutation> */}
     </Container>
   );
 };

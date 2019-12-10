@@ -3,6 +3,7 @@ import gql from "graphql-tag";
 const UserInfoFragment = gql`
   fragment userInfo on User {
     id
+    token
     email
     firstName
     lastName

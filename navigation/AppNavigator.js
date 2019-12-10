@@ -1,5 +1,6 @@
 import { createAppContainer, createSwitchNavigator } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
+import { createDrawerNavigator } from "react-navigation-drawer";
 
 import HomeScreen from "../screens/HomeScreen";
 import AuthLoadingScreen from "../screens/AuthLoadingScreen";
@@ -15,8 +16,17 @@ const AuthenticationNavigatorStack = createStackNavigator({
   Login: { screen: LoginScreen, navigationOptions: { headerTitle: "Login" } }
 });
 
-const AppNavigatorStack = createStackNavigator({
-  Home: ProfileScreen
+// const AppNavigatorStack = createStackNavigator({
+//   Home: HomeScreen
+// });
+
+const AppNavigatorStack = createDrawerNavigator({
+  Home: {
+    screen: HomeScreen
+  },
+  Profile: {
+    screen: ProfileScreen
+  }
 });
 
 // const AppNavigator = createStackNavigator({
