@@ -1,9 +1,6 @@
 import * as React from "react";
 import { StyleSheet, View, Text } from "react-native";
 
-import NewChat from "../components/NewChat";
-import ChatsList from "../components/ChatsList";
-
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#fff",
@@ -13,8 +10,10 @@ const styles = StyleSheet.create({
 
 const HomeScreen = () => (
   <View style={styles.container}>
-    <NewChat />
-    <ChatsList />
+    <Text>
+      I am the home screen. I sould probably be the guy who looks for
+      properties??
+    </Text>
   </View>
 );
 

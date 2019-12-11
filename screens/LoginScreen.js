@@ -18,6 +18,7 @@ import { View, StyleSheet } from "react-native";
 import Modal from "react-native-modal";
 
 import GoogleRecaptca from "../webviews/GoogleReCaptcha";
+import Loader from "../components/Loader";
 
 const siteKey = "6Lc9N8MUAAAAAIJ6Q5SJ7pyZ4AX46ogbSuOyRbKU";
 // const baseUrl = "http://10.110.6.22";
@@ -175,6 +176,7 @@ const Login = props => {
         </Item>
       </Form>
       {loading && <Text>Doing stuff, please wait...</Text>}
+      <Loader />
       <Content>
         <Button full onPress={() => handleSubmit()} disabled={loading}>
           <Text>Sign In</Text>

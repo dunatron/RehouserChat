@@ -1,12 +1,24 @@
+import React from "react";
+import { MaterialIcons } from "@expo/vector-icons";
 import { createAppContainer, createSwitchNavigator } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import { createDrawerNavigator } from "react-navigation-drawer";
+import {
+  createBottomTabNavigator,
+  createMaterialTopTabNavigator,
+  BottomTabBar,
+  MaterialTopTabBar
+} from "react-navigation-tabs";
 
 import HomeScreen from "../screens/HomeScreen";
 import AuthLoadingScreen from "../screens/AuthLoadingScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import LoginScreen from "../screens/LoginScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+
+
+// Navigators
+import ChatsStackNavigator from "./ChatsStackNavigator";
 
 const AuthenticationNavigatorStack = createStackNavigator({
   Register: {
@@ -16,9 +28,70 @@ const AuthenticationNavigatorStack = createStackNavigator({
   Login: { screen: LoginScreen, navigationOptions: { headerTitle: "Login" } }
 });
 
-// const AppNavigatorStack = createStackNavigator({
-//   Home: HomeScreen
-// });
+// TABS WITH DRAW EXPERIMENT
+const SimpleTabs = createBottomTabNavigator(
+  {
+    // Chat: {
+    //   path: "chat",
+    //   screen: MyChatScreen
+    // },
+    Home: {
+      path: "",
+      screen: HomeScreen
+    },
+    Profile: {
+      path: "profile",
+      screen: ProfileScreen
+    },
+    Chats: {
+      path: "chat",
+      screen: ChatsStackNavigator
+    }
+    // People: {
+    //   path: "cart",
+    //   screen: MyPeopleScreen
+    // },
+    // Settings: {
+    //   path: "settings",
+    //   screen: MySettingsScreen
+    // }
+  },
+  {
+    order: ["Home", "Profile", "Chats"],
+    backBehavior: "history",
+    tabBarOptions: {
+      activeTintColor: "#e91e63"
+    }
+  }
+);
+
+const TabsInDrawer = createDrawerNavigator({
+  SimpleTabs: {
+    navigationOptions: {
+      drawerIcon: ({ tintColor }) => (
+        <MaterialIcons name="filter-1" size={24} style={{ color: tintColor }} />
+      ),
+      drawerLabel: "Simple tabs"
+    },
+    screen: SimpleTabs
+  },
+  Home: {
+    screen: HomeScreen
+  },
+  Profile: {
+    path: "profile",
+    screen: ProfileScreen
+  }
+  // StacksOverTabs: {
+  //   navigationOptions: {
+  //     drawerIcon: ({ tintColor }) => (
+  //       <MaterialIcons name="filter-2" size={24} style={{ color: tintColor }} />
+  //     ),
+  //     drawerLabel: "Stacks Over Tabs"
+  //   },
+  //   screen: StacksOverTabs
+  // }
+});
 
 const AppNavigatorStack = createDrawerNavigator({
   Home: {
@@ -41,7 +114,7 @@ const AppNavigator = createSwitchNavigator(
      */
     AuthLoading: AuthLoadingScreen,
     Auth: AuthenticationNavigatorStack,
-    App: AppNavigatorStack
+    App: TabsInDrawer
   },
   { initialRouteName: "AuthLoading" }
 );
