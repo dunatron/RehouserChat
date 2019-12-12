@@ -12,7 +12,7 @@ import { getAuthToken } from "../utils/userAuth";
 
 const httpLink = createHttpLink({
   uri: "http://10.110.6.22:4444",
-  credentials: "include"
+  credentials: "include" // this will automagically include sending cookies to the server
 });
 
 const authLink = setContext((_, { headers, cookies }) => {

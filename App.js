@@ -4,6 +4,7 @@ import { AppLoading } from "expo";
 import { Asset } from "expo-asset";
 import * as Font from "expo-font";
 import { ApolloProvider } from "react-apollo";
+import { CookiesProvider } from "react-cookie";
 import AppNavigator from "./navigation/AppNavigator";
 import client from "./apollo/client";
 
@@ -53,10 +54,12 @@ export default class App extends React.Component {
     }
     return (
       <ApolloProvider client={client}>
-        <View style={styles.container}>
-          {Platform.OS === "ios" && <StatusBar barStyle="default" />}
-          <AppNavigator />
-        </View>
+        <CookiesProvider>
+          <View style={styles.container}>
+            {Platform.OS === "ios" && <StatusBar barStyle="default" />}
+            <AppNavigator />
+          </View>
+        </CookiesProvider>
       </ApolloProvider>
     );
   }

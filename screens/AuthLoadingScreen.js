@@ -8,6 +8,7 @@ import {
   Text
 } from "react-native";
 import { getAuthToken } from "../utils/userAuth";
+import { useCookies } from "react-cookie";
 
 /**
  * This screen is to fetch a userToken from localStorage. If one is found we navigate to the appScreen
@@ -17,7 +18,12 @@ import { getAuthToken } from "../utils/userAuth";
  */
 
 const AuthLoadingScreen = props => {
+  const [cookies, setCookie] = useCookies(["token"]);
+
   // Fetch the token from storage then navigate to our appropriate place
+  // console.log("==The cookies==> ", cookies);
+  console.log("==The cookies==> ", cookies);
+
   const _bootstrapAsync = async () => {
     const userToken = await getAuthToken();
 

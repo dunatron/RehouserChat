@@ -1,5 +1,6 @@
 import * as React from "react";
 import { StyleSheet, View, Text, Button } from "react-native";
+import { useCookies } from "react-cookie";
 
 import NewChat from "../components/NewChat";
 import ChatsList from "../components/ChatsList";
@@ -13,6 +14,12 @@ const styles = StyleSheet.create({
 
 const ChatsScreen = props => {
   console.log("ChatsScreen props => ", props);
+  const [cookies, setCookie] = useCookies(["token"]);
+
+  // Fetch the token from storage then navigate to our appropriate place
+  // console.log("==The cookies==> ", cookies);
+  console.log("==The cookies==> ", cookies);
+
   return (
     <View style={styles.container}>
       <Button

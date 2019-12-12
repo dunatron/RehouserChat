@@ -1,6 +1,7 @@
 import * as React from "react";
 import { FlatList, Text } from "react-native";
 import { useQuery } from "@apollo/react-hooks";
+import { MY_CHATS_QUERY } from "../graphql/queries";
 import moment from "moment";
 
 import graphqlTag from "graphql-tag";
@@ -71,19 +72,23 @@ const ChatItem = props => {
 };
 
 const ChatsList = props => {
-  const { data, loading, error } = useQuery(QUERY_CHATS);
+  const { data, loading, error } = useQuery(MY_CHATS_QUERY);
+  console.log("CVHats data has edges and node now => ", data);
   if (loading) return <Text>Loading chats</Text>;
   if (error) return <Text>error retrieving chats list</Text>;
+  const chatsAggregate = data.chatsConnection.aggregate;
+  const chatEdges = data.chatsConnection.edges;
   return (
     <Container>
       <Content>
         {/* https://docs.nativebase.io/Components.html#list-def-headref */}
         <List
-          dataArray={data.chats}
-          keyExtractor={item => String(item.id)}
+          // dataArray={data.chats}
+          dataArray={chatEdges}
+          keyExtractor={item => String(item.node.id)}
           itemDivider={true}
           renderRow={item => (
-            <ChatItem item={item} navigation={props.navigation} />
+            <ChatItem item={item.node} navigation={props.navigation} />
           )}
         />
       </Content>
