@@ -23,6 +23,8 @@ const authLink = setContext((_, { headers, cookies }) => {
    * Even do things like validate token on the server for time, expiry etc
    */
   const token = getAuthToken();
+  // check what headers are being sent. 
+  // we should try get the token from this guy
   return {
     headers: {
       // ...headers
