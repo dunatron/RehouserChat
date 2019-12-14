@@ -6,6 +6,7 @@ import * as Font from "expo-font";
 import { ApolloProvider } from "react-apollo";
 import { CookiesProvider } from "react-cookie";
 import AppNavigator from "./navigation/AppNavigator";
+import SubscriptionsProvider from "./subscriptions"
 import client from "./apollo/client";
 
 const styles = StyleSheet.create({
@@ -57,6 +58,7 @@ export default class App extends React.Component {
         <CookiesProvider>
           <View style={styles.container}>
             {Platform.OS === "ios" && <StatusBar barStyle="default" />}
+            <SubscriptionsProvider />
             <AppNavigator />
           </View>
         </CookiesProvider>

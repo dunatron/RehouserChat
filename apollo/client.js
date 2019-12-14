@@ -11,7 +11,8 @@ import cache from "./cache";
 import { getAuthToken } from "../utils/userAuth";
 
 const httpLink = createHttpLink({
-  uri: "http://10.110.6.22:4444",
+  // uri: "http://10.110.6.22:4444",
+  uri: "http://192.168.20.2:4444", // home mac
   credentials: "include" // this will automagically include sending cookies to the server
 });
 
