@@ -25,6 +25,11 @@ export default gql`
       id
       firstName
       lastName
+      profilePhoto {
+        id
+        filename
+        url
+      }
     }
   }
 `;

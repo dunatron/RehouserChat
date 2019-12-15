@@ -42,7 +42,8 @@ const ChatItem = props => {
   const { item } = props;
   const handleItemPress = () => {
     props.navigation.navigate("Chat", {
-      id: item.id
+      id: item.id,
+      chat: item
     });
   };
   const lastMessageDate = item.lastMessage

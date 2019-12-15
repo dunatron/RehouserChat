@@ -6,11 +6,14 @@ export default gql`
     id
     name
     picture
+    type
     lastMessage {
       ...Message
     }
     participants {
       id
+      firstName
+      lastName
     }
     seenInfo {
       id

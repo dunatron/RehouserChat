@@ -68,6 +68,8 @@ export const writeMessage = async (client, message) => {
     __typename: "MessageEdge"
   };
 
+  const newEdges = [pagedMesssage].concat(data.messagesConnection.edges);
+
   // write the query to the cache
   client.writeQuery({
     query: MESSAGES_CONNECTION_QUERY,
@@ -75,7 +77,8 @@ export const writeMessage = async (client, message) => {
     data: {
       messagesConnection: {
         ...data.messagesConnection,
-        edges: data.messagesConnection.edges.concat(pagedMesssage)
+        edges: newEdges
+        // edges: data.messagesConnection.edges.concat(pagedMesssage)
       }
     }
   });

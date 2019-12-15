@@ -61,15 +61,21 @@ const OpenChats = props => {
     style: {
       height: 100,
       width: 100
+    },
+    data: {
+      chat: c
     }
   }));
 
-  const addChatBubble = config => {
+  const openChatBubble = config => {
     // props.navigation.navigate("Chat", {
     //   id: 86,
     //   otherParam: "anything you want here"
     // });
-    NavigationService.navigate("Chat", { id: config.id });
+    console.log("openChatBubble Bubble config => ", config);
+    NavigationService.navigate("Chat", {
+      chat: config.data.chat
+    });
   };
   return (
     <View
@@ -96,8 +102,8 @@ const OpenChats = props => {
                   index={i}
                   x={x}
                   y={y}
-                  add={() => {
-                    addChatBubble(config);
+                  open={() => {
+                    openChatBubble(config);
                   }}
                 />
               );
@@ -109,7 +115,7 @@ const OpenChats = props => {
   );
 };
 
-const ChatBubble = ({ id, index, x, y, add }) => {
+const ChatBubble = ({ id, index, x, y, open }) => {
   console.log("WTF => ", id);
   return (
     <View
@@ -126,7 +132,7 @@ const ChatBubble = ({ id, index, x, y, add }) => {
         backgroundColor: colors[index]
       }}
     >
-      <Button title="Open chat" onPress={() => add()} />
+      <Button title="Open chat" onPress={() => open()} />
     </View>
   );
 };
