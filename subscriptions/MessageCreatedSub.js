@@ -1,19 +1,9 @@
-import { useState } from 'react';
-import { useQuery, useMutation, useSubscription } from '@apollo/react-hooks';
-import { MESSAGE_CREATED_SUBSCRIPTION } from '../graphql/subscriptions/MessageCreatedSub';
-// import { writeMessage } from '../../services/cache.service';
+import { useState } from "react";
+import { useQuery, useMutation, useSubscription } from "@apollo/react-hooks";
+import { MESSAGE_CREATED_SUBSCRIPTION } from "../graphql/subscriptions/MessageCreatedSub";
+import { OPEN_CHAT_LOCAL_MUTATION } from "../apollo/local-state";
 
-// const OPEN_CHAT_LOCAL_MUTATION = gql`
-//   mutation OPEN_CHAT_LOCAL_MUTATION($id: Int!) {
-//     openChat(id: $id) @client
-//   }
-// `;
-
-// const OPEN_CHAT_LOCAL_MUTATION = gql`
-//   mutation OPEN_CHAT_LOCAL_MUTATION($chat: Chat!) {
-//     openChat(chat: $chat) @client
-//   }
-// `;
+import { writeMessage } from "../services/writeMessage";
 
 const MessageCreatedSub = ({ me }) => {
   const [openChat] = useMutation(OPEN_CHAT_LOCAL_MUTATION);
@@ -25,18 +15,18 @@ const MessageCreatedSub = ({ me }) => {
         node: {
           chat: {
             participants_some: {
-              id: me.id,
-            },
-          },
-        },
-      },
+              id: me.id
+            }
+          }
+        }
+      }
     },
     onSubscriptionData: ({ client, subscriptionData }) => {
       // open this chat in the local ApolloState
       const {
         data: {
-          messageSub: { mutation, node, updatedFields, previousValues },
-        },
+          messageSub: { mutation, node, updatedFields, previousValues }
+        }
       } = subscriptionData;
 
       // we were the sender do nothing with this sub
@@ -48,30 +38,31 @@ const MessageCreatedSub = ({ me }) => {
       if (previousValues === null && updatedFields === null) {
         // this is a brand new message
       }
-      if (mutation === 'CREATED') {
+      if (mutation === "CREATED") {
         // this is a brand new message
-        // writeMessage(client, node);
+        writeMessage(client, node);
       }
-      if (mutation === 'UPDATED') {
+      if (mutation === "UPDATED") {
         // a message was updated
       }
-      if (mutation === 'DELETE') {
+      if (mutation === "DELETE") {
         // message was deleted
       }
-    //   openChat({
-    //     // variables: { id: node.chat.id, participants: node.chat.participants },
-    //     variables: { chat: node.chat },
-    //   });
-    //   // update Messages not seen
-    //   toast(
-    //     <div>
-    //       <h4>
-    //         Message: {node.sender.firstName} {node.sender.lastName}
-    //       </h4>
-    //       <p>{node.content}</p>
-    //     </div>
-    //   );
-    },
+      console.log("Calling open chat lad => ");
+      openChat({
+        // variables: { id: node.chat.id, participants: node.chat.participants },
+        variables: { chat: node.chat }
+      });
+      //   // update Messages not seen
+      //   toast(
+      //     <div>
+      //       <h4>
+      //         Message: {node.sender.firstName} {node.sender.lastName}
+      //       </h4>
+      //       <p>{node.content}</p>
+      //     </div>
+      //   );
+    }
   });
   return null;
 };

@@ -1,4 +1,5 @@
 import gql from "graphql-tag";
+import chat from "./chat.fragment";
 
 const UserInfoFragment = gql`
   fragment userInfo on User {
@@ -59,9 +60,6 @@ const UserInfoFragment = gql`
         firstName
         lastName
       }
-    }
-    chats {
-      ...Chat
     }
   }
 `;

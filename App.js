@@ -6,8 +6,10 @@ import * as Font from "expo-font";
 import { ApolloProvider } from "react-apollo";
 import { CookiesProvider } from "react-cookie";
 import AppNavigator from "./navigation/AppNavigator";
-import SubscriptionsProvider from "./subscriptions"
+import SubscriptionsProvider from "./subscriptions";
 import client from "./apollo/client";
+import OpenChats from "./components/OpenChats";
+import NavigationService from "./services/navigationService";
 
 const styles = StyleSheet.create({
   container: {
@@ -59,7 +61,12 @@ export default class App extends React.Component {
           <View style={styles.container}>
             {Platform.OS === "ios" && <StatusBar barStyle="default" />}
             <SubscriptionsProvider />
-            <AppNavigator />
+            <OpenChats />
+            <AppNavigator
+              ref={navigatorRef => {
+                NavigationService.setTopLevelNavigator(navigatorRef);
+              }}
+            />
           </View>
         </CookiesProvider>
       </ApolloProvider>

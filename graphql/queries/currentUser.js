@@ -1,5 +1,5 @@
-import gql from 'graphql-tag';
-import { UserInfoFragment } from '../fragments/userInfo';
+import gql from "graphql-tag";
+import { UserInfoFragment } from "../fragments/userInfo";
 
 const CURRENT_USER_QUERY = gql`
   query CURRENT_USER_QUERY {

@@ -9,7 +9,6 @@ const ProfileScreen = props => {
 
   const handleLogout = async () => {
     const res = await signout();
-    console.log("signout res => ", res);
     // some quality checking on errors etc needs to be done here
     if (res.data) {
       if (res.data.signout.__typename === "SuccessMessage") {

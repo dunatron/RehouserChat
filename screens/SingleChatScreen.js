@@ -20,6 +20,7 @@ const SingleChatScreen = ({ navigation }) => {
   const sendMessageHandler = sentMessages => {
     setMessages(currentMessages => [...currentMessages, ...sentMessages]);
   };
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
   const { data, loading, error, fetchMore } = useQuery(
     MESSAGES_CONNECTION_QUERY,
     {
@@ -37,6 +38,8 @@ const SingleChatScreen = ({ navigation }) => {
   );
 
   const fetchMoreHandler = () => {
+    setIsFetchingMore(true);
+    if (isFetchingMore) return null;
     if (!data) return null;
     if (!data.messagesConnection) return null;
     fetchMore({
@@ -46,18 +49,29 @@ const SingleChatScreen = ({ navigation }) => {
         skip: data.messagesConnection.edges.length
       },
       updateQuery: (prevResult, { fetchMoreResult }) => {
-        // if (!fetchMoreResult) return;
-        // const newEdges = fetchMoreResult.messagesConnection.edges;
-        // const pageInfo = fetchMoreResult.messagesConnection.pageInfo;
-        // return newEdges.length
-        //   ? {
-        //       messagesConnection: {
-        //         __typename: prevResult.messagesConnection.__typename,
-        //         edges: [...newEdges, ...prevResult.messagesConnection.edges],
-        //         pageInfo
-        //       }
-        //     }
-        //   : prevResult;
+        if (!fetchMoreResult) return;
+        if (!prevResult) return;
+        const newEdges = fetchMoreResult.messagesConnection.edges;
+        const pageInfo = fetchMoreResult.messagesConnection.pageInfo;
+
+        setIsFetchingMore(false);
+        return newEdges.length
+          ? {
+              messagesConnection: {
+                __typename: "MessageConnection",
+                edges: [
+                  ...prevResult.messagesConnection.edges,
+                  ...fetchMoreResult.messagesConnection.edges
+                ],
+                pageInfo: {
+                  ...fetchMoreResult.messagesConnection.pageInfo
+                },
+                aggregate: {
+                  ...fetchMoreResult.messagesConnection.aggregate
+                }
+              }
+            }
+          : prevResult;
       }
     });
   };
@@ -65,6 +79,7 @@ const SingleChatScreen = ({ navigation }) => {
   // gifted chat has no auto detection for load more. just a button to load more. sooooo
   // giftedChat onScroll get the native event handlers and do some measurements to decide if we are close to the top
   const isCloseToTop = ({ layoutMeasurement, contentOffset, contentSize }) => {
+    if (loading) return false;
     const paddingToTop = 80;
     return (
       contentSize.height - layoutMeasurement.height - paddingToTop <=
@@ -77,13 +92,15 @@ const SingleChatScreen = ({ navigation }) => {
   const aggregateData = data.messagesConnection.aggregate;
   const edges = data.messagesConnection.edges;
   const giftedMessages = transformMessagesToGifted(edges);
-  console.log("Data from messages => ", data);
+  console.log("Total messages => ", edges.length);
   return (
     <GiftedChat
       listViewProps={{
         scrollEventThrottle: 400,
         onScroll: ({ nativeEvent }) => {
-          if (isCloseToTop(nativeEvent)) fetchMoreHandler();
+          if (isCloseToTop(nativeEvent)) {
+            fetchMoreHandler();
+          }
         }
       }}
       messages={giftedMessages}

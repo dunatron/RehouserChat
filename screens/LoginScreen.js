@@ -23,37 +23,7 @@ import Loader from "../components/Loader";
 const siteKey = "6Lc9N8MUAAAAAIJ6Q5SJ7pyZ4AX46ogbSuOyRbKU";
 // const baseUrl = "http://10.110.6.22";
 const baseUrl = "127.0.0.1";
-
-const CREATE_CHAT_MUTATION = graphqlTag`
-mutation CREATE_CHAT_MUTATION(
-  $data: ChatCreateInput!
-) {
-  createChat(data: $data) {
-    id
-    name
-    lastMessage {
-      id
-      isMine
-    }
-    participants {
-      id
-    }
-  }
-}
-`;
-
-const QUERY_CHATS = graphqlTag`
-query queryChats {
-  chats {
-    id
-    name
-    participants {
-      id
-      firstName
-    }
-  }
-}
-`;
+import { CURRENT_USER_QUERY } from "../graphql/queries/index";
 
 const TEST_LOGIN_MUTATION = graphqlTag`
 mutation login(
@@ -131,8 +101,8 @@ const Login = props => {
         email: state.email,
         password: state.password,
         captchaToken: token ? String(token) : String(state.captchaToken)
-      }
-      // refetchQueries: [{ query: CURRENT_USER_QUERY }]
+      },
+      refetchQueries: [{ query: CURRENT_USER_QUERY }]
     });
     if (res.data.signin.email === state.email) {
       const token = res.data.signin.token;

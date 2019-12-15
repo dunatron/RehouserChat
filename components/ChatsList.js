@@ -73,7 +73,6 @@ const ChatItem = props => {
 
 const ChatsList = props => {
   const { data, loading, error } = useQuery(MY_CHATS_QUERY);
-  console.log("CVHats data has edges and node now => ", data);
   if (loading) return <Text>Loading chats</Text>;
   if (error) return <Text>error retrieving chats list</Text>;
   const chatsAggregate = data.chatsConnection.aggregate;

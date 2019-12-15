@@ -12,14 +12,8 @@ const styles = StyleSheet.create({
   }
 });
 
-const ChatsScreen = props => {
-  console.log("ChatsScreen props => ", props);
+const ChatsScreen = props => { 
   const [cookies, setCookie] = useCookies(["token"]);
-
-  // Fetch the token from storage then navigate to our appropriate place
-  // console.log("==The cookies==> ", cookies);
-  console.log("==The cookies==> ", cookies);
-
   return (
     <View style={styles.container}>
       <Button
