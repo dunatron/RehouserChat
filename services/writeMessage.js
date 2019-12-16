@@ -1,9 +1,6 @@
 import gql from "graphql-tag";
-import {
-  CHAT_QUERY,
-  MESSAGES_QUERY,
-  MESSAGES_CONNECTION_QUERY
-} from "../graphql/queries/index";
+import { isEmpty } from "ramda";
+import { MESSAGES_CONNECTION_QUERY } from "../graphql/queries/index";
 
 import {
   MESSAGES_CONNECTION_ORDER_BY,
@@ -11,28 +8,14 @@ import {
   MESSAGES_CONNECTION_SKIP
 } from "../constants";
 
+/**
+ * If the main chat thread for the message has been opened and is in the cache,
+ * we will write the new message into the messagesConnection cache
+ */
 export const writeMessage = async (client, message) => {
-  // Might be better to write a writeOwnMessage
-  // first figure out why its doing this though...
-
   if (!client.query) {
-    // do write for InDbCahce
-    if (client.readQuery) {
-      // const cahcedData = await client.readQuery({
-      //   query: MESSAGES_CONNECTION_QUERY,
-      //   variables: variables,
-      // });
-      // console.log("cahcedData => ", cahcedData)
-    }
     return;
   }
-
-  // if(client.__proto__ === 'ApolloCache') {
-  //   alert("AN in memory cahce yea?")
-  // }
-  // return
-
-  // message connection variables
   const variables = {
     orderBy: MESSAGES_CONNECTION_ORDER_BY,
     first: MESSAGES_CONNECTION_FIRST,
@@ -44,20 +27,19 @@ export const writeMessage = async (client, message) => {
     }
   };
 
-  // message connection messages
+  /**
+   * Get the messages in the cache to concat them onto the new message,
+   * if no connection in the store then do not add message
+   */
   const { data, loading, error } = await client.query({
     query: MESSAGES_CONNECTION_QUERY,
-    variables: variables
+    variables: variables,
+    fetchPolicy: "cache-only"
   });
 
-  // const {data, loading, error} = client.query ? await query.query({
-  //   query: MESSAGES_CONNECTION_QUERY,
-  //   variables: variables,
-  // })
-  //  : await readQuery.query({
-  //   query: MESSAGES_CONNECTION_QUERY,
-  //   variables: variables,
-  // });
+  if (isEmpty(data)) {
+    return;
+  }
 
   // new message to write
   const pagedMesssage = {

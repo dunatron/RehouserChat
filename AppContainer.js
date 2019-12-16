@@ -65,7 +65,11 @@ const App = props => {
       <View style={styles.container}>
         {Platform.OS === "ios" && <StatusBar barStyle="default" />}
         <SubscriptionsProvider />
-        <OpenChats />
+        <OpenChats
+          me={
+            currentUser.data ? currentUser.data.me : null // now me is on all screens
+          }
+        />
         <AppNavigatorContainer
           ref={navigatorRef => {
             NavigationService.setTopLevelNavigator(navigatorRef);
