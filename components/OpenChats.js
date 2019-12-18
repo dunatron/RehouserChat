@@ -104,6 +104,9 @@ export default function Drag() {
     }
   }, []);
 
+  /**
+   * ToDo: handle this with an animation instead of hard setting it
+   */
   const snapBubbleToClose = () => {
     const dz = dropZoneValues.current;
     setDropStyles(isDroppingDropzoneStyles);
@@ -148,15 +151,7 @@ export default function Drag() {
     return false;
   };
 
-  /**
-   * This is also wrong because the top ius like 0. fucken flex
-   */
   const isCloseToTop = gesture => {
-    console.log(
-      "screenHeight - TOP_BOT_OFFSET => ",
-      screenHeight - TOP_BOT_OFFSET
-    );
-    console.log("gesture.moveY => ", gesture.moveY);
     if (TOP_BOT_OFFSET > gesture.moveY) return true;
     return false;
   };
@@ -170,18 +165,10 @@ export default function Drag() {
   };
 
   const calculateYOnRelease = gesture => {
-    // if (!isBelowHalf(gesture) && isCloseToTop(gesture)) {
-    //   return 100;
-    // }
-    const isCloseToB = isCloseToBottom(gesture);
-    const isCloseToT = isCloseToTop(gesture);
-    console.log("isCloseToTop => ", isCloseToT);
-    console.log("isCloseToBottom => ", isCloseToB);
     if (isCloseToTop(gesture)) {
       return TOP_BOT_OFFSET;
     }
     if (isCloseToBottom(gesture)) {
-      // return -TOP_BOT_OFFSET + BUBBLE_RADIUS * 2;
       return -TOP_BOT_OFFSET;
     }
     return 0;
@@ -208,48 +195,13 @@ export default function Drag() {
           animateVal.current.setValue({ x: 0, y: 0 });
         },
         onPanResponderRelease: (e, gesture) => {
-          // if (!isDropZone(gesture)) {
-          //   if (e.nativeEvent.pageX / 2 + BUBBLE_RADIUS * 2 < screenWidth / 2) {
-          //     animateVal.current.setOffset({
-          //       x: 0,
-          //       y: _value.y
-          //     });
-          //     animateVal.current.setValue({ x: 0, y: 0 });
-          //   } else {
-          //     animateVal.current.setOffset({
-          //       x: gesture.moveX,
-          //       y: gesture.moveY
-          //     });
-          //     Animated.spring(animateVal.current, {
-          //       toValue: {
-          //         // x: screenWidth - BUBBLE_RADIUS * 2,
-          //         // y: gesture.moveY
-          //         x: screenWidth - gesture.moveX - BUBBLE_RADIUS * 2,
-          //         y: 0
-          //       }
-          //     }).start();
-          //   }
-          // }
           if (!isDropZone(gesture)) {
             if (e.nativeEvent.pageX < screenWidth / 2) {
-              const bubbleOffset = gesture.moveX - BUBBLE_RADIUS * 2;
-              // animateVal.current.setOffset({
-              //   x: 0,
-              //   y: _value.y
-              // });
-              // animateVal.current.setValue({ x: 0, y: 0 });
               animateVal.current.setOffset({
                 x: gesture.moveX,
                 y: gesture.moveY
               });
               animateVal.current.setValue({ x: 0, y: 0 });
-              // Animated.spring(animateVal.current, {
-              //   toValue: {
-              //     // x: screenWidth - gesture.moveX - BUBBLE_RADIUS * 2,
-              //     x: -gesture.moveX,
-              //     y: 0
-              //   }
-              // }).start();
               Animated.spring(animateVal.current, {
                 toValue: {
                   // x: screenWidth - gesture.moveX - BUBBLE_RADIUS * 2,
@@ -265,13 +217,7 @@ export default function Drag() {
               animateVal.current.setValue({ x: 0, y: 0 });
               Animated.spring(animateVal.current, {
                 toValue: {
-                  // x: screenWidth - BUBBLE_RADIUS * 2,
-                  // y: gesture.moveY
                   x: screenWidth - gesture.moveX - BUBBLE_RADIUS * 2,
-                  // y: isCloseToTop(gesture) ? -100 : 100
-                  // y: () => {
-                  //   return isBelowHalf(gesture) ? -100 : 100;
-                  // }
                   y: calculateYOnRelease(gesture)
                 }
               }).start();
@@ -294,7 +240,7 @@ export default function Drag() {
   // const bubbleAnimatedStyles = [animateVal.current.getLayout(), styles.bubble];
   const dropZoneStyles = [styles.dropZone, dropStyles];
   return (
-    <View style={styles.mainContainer}>
+    <View style={styles.mainContainer} pointerEvents="box-none">
       <View onLayout={setDropZoneValues} style={dropZoneStyles}>
         <Text style={styles.text}>X</Text>
       </View>
