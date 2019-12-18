@@ -18,15 +18,16 @@ import { getAuthToken } from "../utils/userAuth";
 //   credentials: "include" // this will automagically include sending cookies to the server
 // });
 const httpLink = new HttpLink({
-  // uri: "http://10.110.6.22:4444", // work mac
+  uri: "http://10.110.6.22:4444", // work mac
 
-  uri: "http://192.168.20.6:4444", // home mac
+  // uri: "http://192.168.20.6:4444", // home mac
   credentials: "include" // this will automagically include sending cookies to the server
 });
 
 const wsLink = new WebSocketLink({
   // if you instantiate in the server, the error will be thrown
-  uri: `ws://192.168.20.6:4444`,
+  // uri: `ws://192.168.20.6:4444`, //home mac
+  uri: `ws://10.110.6.22:4444`,
   // uri: websocketEndpoint,
   options: {
     reconnect: true
