@@ -97,7 +97,7 @@ export default function Drag() {
 
   const onMove = useCallback((_, gesture) => {
     if (isDropZone(gesture)) {
-      snapBubbleToClose();
+      snapBubbleToClose(gesture);
     } else {
       setDropStyles(defaultDropzoneStyles);
       isSnapped = false;
@@ -107,7 +107,7 @@ export default function Drag() {
   /**
    * ToDo: handle this with an animation instead of hard setting it
    */
-  const snapBubbleToClose = () => {
+  const snapBubbleToClose = gesture => {
     const dz = dropZoneValues.current;
     setDropStyles(isDroppingDropzoneStyles);
     if (!isSnapped) {
@@ -156,6 +156,21 @@ export default function Drag() {
     return false;
   };
 
+  const distanceFromTop = gesture => {
+    return TOP_BOT_OFFSET - gesture.moveY;
+  };
+
+  const distanceFromBottom = gesture => {
+    // return screenHeight - (screenHeight - gesture.moveY);
+    const val = gesture.moveY - screenHeight;
+    console.group("distanceFromBottom");
+    console.log("gesture.moveY ", gesture.moveY);
+    console.log("screenHeight ", screenHeight);
+    console.log("val ", val);
+    console.groupEnd();
+    return val;
+  };
+
   /**
    * This is wrong
    */
@@ -166,10 +181,12 @@ export default function Drag() {
 
   const calculateYOnRelease = gesture => {
     if (isCloseToTop(gesture)) {
-      return TOP_BOT_OFFSET;
+      return distanceFromTop(gesture);
+      // return TOP_BOT_OFFSET;
     }
     if (isCloseToBottom(gesture)) {
-      return -TOP_BOT_OFFSET;
+      // return -TOP_BOT_OFFSET;
+      return distanceFromBottom(gesture);
     }
     return 0;
   };
