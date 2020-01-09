@@ -8,7 +8,8 @@ import { CookiesProvider } from "react-cookie";
 import AppNavigatorContainer from "./navigation/AppNavigator";
 import SubscriptionsProvider from "./subscriptions";
 import client from "./apollo/client";
-import OpenChats from "./components/OpenChats";
+// import OpenChats from "./components/OpenChats";
+import OpenChats from "./components/OpenChats/index";
 import NavigationService from "./services/navigationService";
 import { useCurrentUser } from "./components/User";
 
@@ -20,10 +21,11 @@ const styles = StyleSheet.create({
 });
 
 const App = props => {
+  const currRoute = NavigationService.getCurrentRoute();
+  const [activeRouteName, setActiveRouteName] = useState(currRoute);
   const { skipLoadingScreen } = props;
   const [isLoadingComplete, setIsLoadingComplete] = useState(false);
   const currentUser = useCurrentUser();
-  console.log("User data => ", currentUser);
   const loadResourcesAsync = async () => {
     await Promise.all([
       Asset.loadAsync([
@@ -50,6 +52,19 @@ const App = props => {
     return false;
   };
 
+  // gets the current screen from navigation state
+  function getActiveRouteName(navigationState) {
+    if (!navigationState) {
+      return null;
+    }
+    const route = navigationState.routes[navigationState.index];
+    // dive into nested navigators
+    if (route.routes) {
+      return getActiveRouteName(route);
+    }
+    return route.routeName;
+  }
+
   if (showAppLoader()) {
     return (
       <AppLoading
@@ -60,22 +75,27 @@ const App = props => {
     );
   }
 
+  const shareableRootProps = {
+    me: currentUser.data ? currentUser.data.me : null,
+    activeRouteName: activeRouteName
+  };
+
   return (
     <CookiesProvider>
       <View style={styles.container}>
         {Platform.OS === "ios" && <StatusBar barStyle="default" />}
-        <SubscriptionsProvider />
-        <OpenChats
-          me={
-            currentUser.data ? currentUser.data.me : null // now me is on all screens
-          }
-        />
+        <SubscriptionsProvider {...shareableRootProps} />
+        <OpenChats {...shareableRootProps} />
         <AppNavigatorContainer
           ref={navigatorRef => {
             NavigationService.setTopLevelNavigator(navigatorRef);
           }}
           screenProps={{
-            me: currentUser.data ? currentUser.data.me : null // now me is on all screens
+            ...shareableRootProps
+          }}
+          onNavigationStateChange={(prevState, currentState, action) => {
+            const currentRouteName = getActiveRouteName(currentState);
+            setActiveRouteName(currentRouteName);
           }}
         />
       </View>

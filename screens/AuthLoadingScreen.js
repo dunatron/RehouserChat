@@ -29,8 +29,6 @@ const AuthLoadingScreen = props => {
   const [cookies, setCookie] = useCookies(["token"]);
   const { screenProps } = props;
   const { me } = screenProps;
-
-  console.log("Here is the Auth screen props => ", props);
   // if no me we are either not signed in or have no access to a network
   // lets let localStorage and our token handle this logged in business
   const _bootstrapAsync = async () => {

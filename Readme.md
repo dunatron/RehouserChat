@@ -39,3 +39,11 @@ This is the RehouserChat project
 - type ipconfig to find your machines local ip.
 - your uri will then look like this for your apollo client in local development
   - uri: "http://10.110.6.22:4444"
+
+## Cheat sheets
+
+- [keyboardTypes](https://lefkowitz.me/visual-guide-to-react-native-textinput-keyboardtype-options/)
+- [react-native-material-textfield](https://github.com/n4kz/react-native-material-textfield)
+- [Fantastic Formic Docs](https://jaredpalmer.com/formik/docs/api/fieldarray)
+- [formik field array best practises](https://jaredpalmer.com/formik/docs/api/fieldarray)
+- [Formik example, just remember onClick => onPress 😜](https://codesandbox.io/s/formik-fieldarray-materialui-f7rkz?from-embed)

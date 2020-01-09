@@ -6,6 +6,7 @@ import { OPEN_CHAT_LOCAL_MUTATION } from "../apollo/local-state";
 import { writeMessage } from "../services/writeMessage";
 
 const MessageCreatedSub = ({ me }) => {
+  console.log("Message created sub is here");
   const [openChat] = useMutation(OPEN_CHAT_LOCAL_MUTATION);
   // Subscribe to al new messages where user is a participant
   useSubscription(MESSAGE_CREATED_SUBSCRIPTION, {
@@ -22,6 +23,9 @@ const MessageCreatedSub = ({ me }) => {
       }
     },
     onSubscriptionData: ({ client, subscriptionData }) => {
+      console.log("A message has been recieved via subscription");
+      // for whatever reason after visiting the chats route it no longer works
+      // solved, its because it queried Message and Message fields where diffenet on connection and sub
       // open this chat in the local ApolloState
       const {
         data: {
@@ -48,7 +52,7 @@ const MessageCreatedSub = ({ me }) => {
       if (mutation === "DELETE") {
         // message was deleted
       }
-      console.log("Calling open chat lad => ");
+      console.log("Calling open chat lad => ", node.chat);
       openChat({
         // variables: { id: node.chat.id, participants: node.chat.participants },
         variables: { chat: node.chat }

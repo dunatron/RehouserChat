@@ -14,10 +14,7 @@ import {
   PanResponder,
   Button
 } from "react-native";
-import { useQuery, useMutation } from "@apollo/react-hooks";
-import { GET_OPEN_CHATS } from "../apollo/local-state";
-import ChatImageBubble from "../components/ChatImageBubble";
-import { CLOSE_CHAT_LOCAL_MUTATION } from "../apollo/resolvers";
+import ChatImageBubble from "../ChatImageBubble";
 
 const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
 
@@ -72,8 +69,6 @@ const initialCoordinates = {
   y: screenHeight / 2 - BUBBLE_RADIUS
 };
 const OpenChats = props => {
-  const { data, error, loading } = useQuery(GET_OPEN_CHATS);
-  const [closeChat] = useMutation(CLOSE_CHAT_LOCAL_MUTATION);
   const dropZoneValues = useRef(null);
   const animateVal = useRef(new Animated.ValueXY(initialCoordinates));
   let isSnapped = false;
@@ -202,16 +197,7 @@ const OpenChats = props => {
   const isOnLeft = () => {};
 
   const handleCloseChats = () => {
-    console.log("Lets try close the fucken chats yea => ", data);
-    // CLOSE_CHAT_LOCAL_MUTATION;
-    // data.openChats.map(c => {
-    //   console.log("This is what we are trying to close => ", c);
-    //   closeChat({
-    //     variables: {
-    //       id: c.id
-    //     }
-    //   });
-    // });
+    props.closeAll();
   };
 
   const panResponder = useMemo(
@@ -225,6 +211,11 @@ const OpenChats = props => {
           if (isSnapped) return;
           return animatedMover(e, gesture);
         },
+        onMoveShouldSetPanResponder: (e, gestureState) => {
+          console.log("onMoveShouldSetPanResponder e => ", e);
+          console.log("onMoveShouldSetPanResponder e => ", gestureState);
+          return true;
+        },
         onPanResponderGrant: (e, gestureState) => {
           // set isMoving to true
           setIsMoving(true);
@@ -235,6 +226,14 @@ const OpenChats = props => {
           animateVal.current.setValue({ x: 0, y: 0 });
         },
         onPanResponderRelease: (e, gesture) => {
+          console.log("onPanResponderRelease e => ", e);
+          console.log("onPanResponderRelease gesture => ", gesture);
+          // this would most likely be a tap. kinda buggy though because maybe its not =)
+          if (gesture.dx === 0 && gesture.dy === 0) {
+            // 1. open the chat i guess
+            props.openTopChat();
+            return;
+          }
           // set isMoving to false, maybe last
           if (!isDropZone(gesture)) {
             if (e.nativeEvent.pageX < screenWidth / 2) {
@@ -283,20 +282,12 @@ const OpenChats = props => {
 
   // currently just going to close them all
 
-  if (loading) return null;
-  if (error) return null;
-  const { openChats } = data;
-
   const bubbleAnimatedStyles = [styles.bubble, animateVal.current.getLayout()];
   // const bubbleAnimatedStyles = [animateVal.current.getLayout(), styles.bubble];
   const dropZoneStyles = [styles.dropZone, dropStyles];
-  console.log("These are the open chats => ", openChats);
 
   // for now we are just going to show niothing if the array list is empty
-
-  if (openChats.length === 0) return null;
-
-  console.log("The pan handlers => ", panResponder.panHandlers);
+  if (props.chats.length === 0) return null;
 
   return (
     <View style={styles.mainContainer} pointerEvents="box-none">
@@ -308,13 +299,13 @@ const OpenChats = props => {
       <Animated.View {...panResponder.panHandlers} style={bubbleAnimatedStyles}>
         {/* <Text style={styles.text}>Drag me!</Text> */}
         {/* <ChatBubble
-          key={1}
-          index={1}
-          x={300}
-          y={300}
-          // add={() => setBubbles(_.range(6).map(() => ({ x: 0, y: 0 })))}
-        /> */}
-        {openChats.map((chat, i) => (
+            key={1}
+            index={1}
+            x={300}
+            y={300}
+            // add={() => setBubbles(_.range(6).map(() => ({ x: 0, y: 0 })))}
+          /> */}
+        {props.chats.map((chat, i) => (
           <ChatBubble chat={chat} key={i} me={props.me} />
         ))}
       </Animated.View>

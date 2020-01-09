@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
   }
 });
 
-const ChatsScreen = props => { 
+const ChatsScreen = props => {
   const [cookies, setCookie] = useCookies(["token"]);
   return (
     <View style={styles.container}>

@@ -21,23 +21,6 @@ import {
 import { StyleSheet } from "react-native";
 import { trimString } from "../utils/trimString";
 
-const QUERY_CHATS = graphqlTag`
-query queryChats {
-  chats {
-    id
-    name
-    lastMessage {
-      content
-      createdAt
-    }
-    participants {
-      id
-      firstName
-    }
-  }
-}
-`;
-
 const ChatItem = props => {
   const { item } = props;
   const handleItemPress = () => {
@@ -72,6 +55,10 @@ const ChatItem = props => {
   );
 };
 
+/**
+ * SOmething in here prevents the messages subscription from firing correctlty
+ * seems to be the query itself...
+ */
 const ChatsList = props => {
   const { data, loading, error } = useQuery(MY_CHATS_QUERY);
   if (loading) return <Text>Loading chats</Text>;

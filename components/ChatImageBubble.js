@@ -31,32 +31,56 @@ const ChatImageBubble = ({
   };
   const imageUri = findImageUri();
   const noProfileImage = isEmpty(imageUri);
+  console.log("AM i getting to this image bubble?");
+  return noProfileImage ? (
+    <View>
+      <Text>HD</Text>
+    </View>
+  ) : (
+    <Thumbnail
+      //   large
+      pointerEvents="none"
+      source={{ uri: imageUri }}
+      style={{
+        width: width,
+        height: height,
+        borderRadius: width / 2
+      }}
+    />
+  );
   return (
     <TouchableHighlight
-      onPress={onPress}
+      // onPress={onPress}
+      pointerEvents="none"
       activeOpacity={0.85}
       underlayColor="blue"
       style={{
         flex: 1,
         borderRadius: 100,
+        pointerEvents: "none",
         ...positionStyle
       }}
     >
-      {noProfileImage ? (
+      <View>
+        <Text>HD</Text>
+      </View>
+      {/* {noProfileImage ? (
         <View>
           <Text>HD</Text>
         </View>
       ) : (
         <Thumbnail
           //   large
+          pointerEvents="none"
           source={{ uri: imageUri }}
           style={{
             width: width,
+            pointerEvents: "none",
             height: height,
             borderRadius: width / 2
           }}
         />
-      )}
+      )} */}
     </TouchableHighlight>
   );
 };

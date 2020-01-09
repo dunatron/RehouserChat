@@ -15,7 +15,8 @@ import AuthLoadingScreen from "../screens/AuthLoadingScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import LoginScreen from "../screens/LoginScreen";
 import ProfileScreen from "../screens/ProfileScreen";
-
+import AddPropertyScreen from "../screens/AddProperty";
+import AddPropertyStackNavigator from "./AddPropertyStackNavigator";
 
 // Navigators
 import ChatsStackNavigator from "./ChatsStackNavigator";
@@ -81,6 +82,14 @@ const TabsInDrawer = createDrawerNavigator({
   Profile: {
     path: "profile",
     screen: ProfileScreen
+  },
+  Add_Property: {
+    path: "add-property",
+    screen: AddPropertyStackNavigator
+  },
+  Chats: {
+    path: "chat",
+    screen: ChatsStackNavigator
   }
   // StacksOverTabs: {
   //   navigationOptions: {

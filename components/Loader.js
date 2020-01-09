@@ -2,7 +2,7 @@ import React from "react";
 import { View } from "react-native";
 import { Bubbles, DoubleBounce, Bars, Pulse } from "react-native-loader";
 
-const Loader = () => {
+const Loader = ({ message }) => {
   return (
     <View>
       <Bubbles size={10} color="#FFF" />
