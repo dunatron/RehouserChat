@@ -9,13 +9,13 @@ const ADD_PROPERTY_FORM = {
   rent: "",
   location: "",
   locationLat: "",
-  locationLng: "state.locationLng",
-  rooms: "parseInt(state.rooms)",
-  moveInDate: "state.moveInDate",
-  expiryDate: "state.expiryDate",
-  carportSpaces: "parseInt(state.carportSpaces)",
-  garageSpaces: "parseInt(state.garageSpaces)",
-  offStreetSpaces: "parseInt(state.offStreetSpaces)",
+  locationLng: "",
+  rooms: "",
+  moveInDate: "",
+  expiryDate: "",
+  carportSpaces: "",
+  garageSpaces: "",
+  offStreetSpaces: "",
   accommodation: [
     {
       __typename: "Accommodation",
@@ -25,6 +25,8 @@ const ADD_PROPERTY_FORM = {
       description: ""
     }
   ],
+  outdoorFeatures: [],
+  indoorFeatures: [],
   // outdoorFeatures: {
   //   set: []
   // },

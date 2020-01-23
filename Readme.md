@@ -40,6 +40,23 @@ This is the RehouserChat project
 - your uri will then look like this for your apollo client in local development
   - uri: "http://10.110.6.22:4444"
 
+## get GraphQL enum values
+
+```js
+query GET_ENUM($name:String!) {
+  __type(name:$name) {
+    enumValues {
+      name
+      description
+    }
+  }
+}
+// variables
+{
+  "name": "IndoorFeature"
+}
+```
+
 ## Cheat sheets
 
 - [keyboardTypes](https://lefkowitz.me/visual-guide-to-react-native-textinput-keyboardtype-options/)

@@ -27,6 +27,7 @@ import * as Yup from "yup";
 import { TextField } from "react-native-material-textfield";
 import { SET_PROPERTY_FORM_FIELDS_LOCAL_MUTATION } from "../../apollo/resolvers";
 import AccommodationCreator from "./AccommodationCreator";
+import FormikErrors from "../../components/FormikErrors";
 
 const ADD_PROPERTY_STEP_1_CONF = {
   validationSchema: Yup.object().shape({
@@ -74,10 +75,6 @@ const FieldsToImplement = [
   "images" // own step to add images at the end
 ];
 
-const MyInput = compose(
-  handleTextInput,
-  withNextInputAutoFocusInput
-)(TextField);
 const FormikForm = withNextInputAutoFocusForm(View);
 
 const Step2 = props => {
@@ -157,9 +154,13 @@ const Step2 = props => {
                     remove,
                     replace
                   }) => {
-                    console.log("keystroke values => ", values);
+                    console.log(" values => ", values);
+                    console.log(" errors => ", errors);
+                    console.log(" touched => ", touched);
                     return (
                       <Form>
+
+
                         <AccommodationCreator
                           items={values.accommodation}
                           replace={replace}
