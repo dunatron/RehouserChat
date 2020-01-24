@@ -3,14 +3,22 @@ import { useQuery } from "@apollo/react-hooks";
 import { GET_ENUM_QUERY } from "../../graphql/queries/index";
 import MultiSelect from "react-native-multiple-select";
 
-const EnumMultiSelect = ({ __type, selected, setSelected, selectText }) => {
+const EnumMultiSelect = ({
+  __type,
+  form,
+  name,
+  selected,
+  setSelected,
+  selectText
+}) => {
   const { data, error, loading } = useQuery(GET_ENUM_QUERY, {
     variables: {
       name: __type
     }
   });
   const onSelectedItemsChange = items => {
-    setSelected(items);
+    setSelected(items); // doing this too so we have a flag of sorts
+    form.setFieldValue(name, items);
   };
 
   if (loading) return null;
@@ -24,6 +32,7 @@ const EnumMultiSelect = ({ __type, selected, setSelected, selectText }) => {
     : [];
   return (
     <MultiSelect
+      name="indoorFeatures"
       hideTags
       items={mappedItems}
       uniqueKey="id"

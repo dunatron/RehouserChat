@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, createRef, useState } from "react";
-
+import Ramda, { isEmpty } from "ramda";
+import { toastErrors } from "../../utils/toastErrors";
 import styles from "./Styles";
 import {
   Container,
@@ -10,7 +11,9 @@ import {
   Button,
   List,
   Text,
-  Form
+  Form,
+  Toast,
+  Root
 } from "native-base";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import { GET_PROPERTY_FORM } from "../../apollo/local-state";
@@ -34,9 +37,12 @@ import EnumMultiSelect from "../../components/Dropdowns/EnumMultiSelect";
 
 const ADD_PROPERTY_STEP_3_CONF = {
   validationSchema: Yup.object().shape({
-    indoorFeatures: Yup.array()
-      .required("Must have accommodation") // these constraints are shown if and only if inner constraints are satisfied
-      .min(1, "Minimum of 1 accommodation must be setup")
+    // indoorFeatures: Yup.array()
+    //   .required("Must have indoor feature") // these constraints are shown if and only if inner constraints are satisfied
+    //   .min(1, "Minimum of 1 indoor feature must be selected"),
+    // outdoorFeatures: Yup.array()
+    //   .required("Must have outdoor feature") // these constraints are shown if and only if inner constraints are satisfied
+    //   .min(1, "Minimum of 1 outdoor feature must be selected")
   })
 };
 
@@ -49,8 +55,14 @@ const Step3 = props => {
   const [setPropertyFields] = useMutation(
     SET_PROPERTY_FORM_FIELDS_LOCAL_MUTATION
   );
+
+  const handleNextBtnClick = async (validateForm, errors, handleSubmit) => {
+    await validateForm();
+    toastErrors(errors);
+    handleSubmit(); // fires Formik onSubmit on success
+  };
   const submitStep = fieldValues => {
-    console.log("Step 2 field values => ", fieldValues);
+    console.log("Step 3 field values => ", fieldValues);
     //ToDo submit values to local apollo store
     setPropertyFields({
       variables: {
@@ -59,7 +71,19 @@ const Step3 = props => {
         }
       }
     });
-    props.navigation.navigate("AddPropertyFinalStep");
+    // props.navigation.navigate("AddPropertyFinalStep");
+    props.navigation.navigate("AddPropertyStep4");
+  };
+
+  const setFieldsInCache = fieldValues => {
+    console.log("setFieldsInCache field values => ", fieldValues);
+    setPropertyFields({
+      variables: {
+        fields: {
+          ...fieldValues
+        }
+      }
+    });
   };
 
   const previousStep = () => {
@@ -84,7 +108,18 @@ const Step3 = props => {
   return (
     <Formik
       initialValues={initialValues}
-      onSubmit={submitStep}
+      validateOnMount={true}
+      // onSubmit={submitStep}
+      onSubmit={(values, actions) => {
+        console.log("CVool values for step 3 submit => ", values);
+        console.log("CVool actions for step 3 submit => ", actions);
+        submitStep(values);
+
+        // setTimeout(() => {
+        //   alert(JSON.stringify(values, null, 2));
+        //   actions.setSubmitting(false);
+        // }, 1000);
+      }}
       validationSchema={ADD_PROPERTY_STEP_3_CONF.validationSchema}
     >
       {formikProps => {
@@ -95,63 +130,71 @@ const Step3 = props => {
           values,
           errors,
           touched,
-          submitCount
+          submitCount,
+          validateForm
         } = formikProps;
         return (
-          <Container>
-            <Header>
-              <Text>Add Accommodation For Property</Text>
-            </Header>
-            <Content>
-              <FormikForm style={styles.form}>
-                <FieldArray name="accommodation">
-                  {({
-                    move,
-                    swap,
-                    push,
-                    insert,
-                    unshift,
-                    pop,
-                    form,
-                    remove,
-                    replace
-                  }) => {
-                    console.log(" values => ", values);
-                    console.log(" errors => ", errors);
-                    console.log(" touched => ", touched);
-                    return (
-                      <Form>
-                        <EnumMultiSelect
-                          __type="IndoorFeature"
-                          selectText="select indoor feature"
-                          selected={selectedIndoorFeatures}
-                          setSelected={items =>
-                            setSelectedIndoorFeatures(items)
-                          }
-                        />
-                        <EnumMultiSelect
-                          __type="OutdoorFeature"
-                          selectText="select outdoor features"
-                          selected={selectedOutdoorFeatures}
-                          setSelected={items =>
-                            setSelectedOutdoorFeatures(items)
-                          }
-                        />
-                      </Form>
-                    );
-                  }}
-                </FieldArray>
-              </FormikForm>
-            </Content>
-            <Footer style={styles.footer}>
-              <Button onPress={previousStep} style={styles.action}>
-                <Text style={styles.btnText}>Back</Text>
-              </Button>
-              <Button onPress={handleSubmit} style={styles.action}>
-                <Text style={styles.btnText}>Next</Text>
-              </Button>
-            </Footer>
-          </Container>
+          <Root>
+            <Container>
+              <Header>
+                <Text>Add Accommodation For Property</Text>
+              </Header>
+              <Content>
+                <FormikForm style={styles.form}>
+                  <FieldArray name="accommodation">
+                    {({
+                      move,
+                      swap,
+                      push,
+                      insert,
+                      unshift,
+                      pop,
+                      form,
+                      remove,
+                      replace
+                    }) => {
+                      console.log(" values => ", values);
+                      console.log(" errors => ", errors);
+                      console.log(" touched => ", touched);
+                      return (
+                        <Form>
+                          <EnumMultiSelect
+                            form={form}
+                            name="indoorFeatures"
+                            __type="IndoorFeature"
+                            selectText="select indoor feature"
+                            selected={values.indoorFeatures}
+                            setSelected={items => setFieldsInCache(values)} // using formik values !returned items
+                          />
+                          <EnumMultiSelect
+                            form={form}
+                            name="outdoorFeatures"
+                            __type="OutdoorFeature"
+                            selectText="select outdoor features"
+                            selected={values.outdoorFeatures}
+                            setSelected={items => setFieldsInCache(values)} // using formik values !returned items
+                          />
+                        </Form>
+                      );
+                    }}
+                  </FieldArray>
+                </FormikForm>
+              </Content>
+              <Footer style={styles.footer}>
+                <Button onPress={previousStep} style={styles.action}>
+                  <Text style={styles.btnText}>Back</Text>
+                </Button>
+                <Button
+                  onPress={() =>
+                    handleNextBtnClick(validateForm, errors, handleSubmit)
+                  }
+                  style={styles.action}
+                >
+                  <Text style={styles.btnText}>Next</Text>
+                </Button>
+              </Footer>
+            </Container>
+          </Root>
         );
       }}
     </Formik>

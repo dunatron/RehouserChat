@@ -1,7 +1,9 @@
 import React, { useRef, useEffect, createRef } from "react";
-
+import { isEmpty } from "ramda";
+import { toastErrors } from "../../utils/toastErrors";
 import styles from "./Styles";
 import {
+  Root,
   Container,
   Header,
   Content,
@@ -27,21 +29,20 @@ import * as Yup from "yup";
 import { TextField } from "react-native-material-textfield";
 import { SET_PROPERTY_FORM_FIELDS_LOCAL_MUTATION } from "../../apollo/resolvers";
 import AccommodationCreator from "./AccommodationCreator";
-import FormikErrors from "../../components/FormikErrors";
 
-const ADD_PROPERTY_STEP_1_CONF = {
+const ADD_PROPERTY_STEP_2_CONF = {
   validationSchema: Yup.object().shape({
-    accommodation: Yup.array()
-      .of(
-        Yup.object().shape({
-          roomSize: Yup.string().required("roomSize is required"),
-          rent: Yup.string().required("rent is required"),
-          expenses: Yup.string().required("expenses is required"),
-          description: Yup.string().required("description is required")
-        })
-      )
-      .required("Must have accommodation") // these constraints are shown if and only if inner constraints are satisfied
-      .min(1, "Minimum of 1 accommodation must be setup")
+    // accommodation: Yup.array()
+    //   .of(
+    //     Yup.object().shape({
+    //       roomSize: Yup.string().required("roomSize is required"),
+    //       rent: Yup.string().required("rent is required"),
+    //       expenses: Yup.string().required("expenses is required"),
+    //       description: Yup.string().required("description is required")
+    //     })
+    //   )
+    //   // .required("Must have 1 accommodation set") // these constraints are shown if and only if inner constraints are satisfied
+    //   .min(1, "Minimum of 1 accommodation must be setup")
   }),
   // initialValues: {
   //   accommodation: [
@@ -61,14 +62,6 @@ const ADD_PROPERTY_STEP_1_CONF = {
 };
 
 const FieldsToImplement = [
-  "type", // need a dropdown selector
-  "accommodation", // this can be own step where we do a different approach
-  "offStreetSpaces",
-  "indoorFeatures", // need a dropdown selector
-  "outdoorFeatures", // need a dropdown selector
-  "rent",
-  "moveInDate",
-  "expiryDate",
   "onTheMarket",
   "owners", // needs to be done automagically
   "creator", // needs to be done automagically
@@ -78,14 +71,17 @@ const FieldsToImplement = [
 const FormikForm = withNextInputAutoFocusForm(View);
 
 const Step2 = props => {
-  // wont submit if Yup does not pass
   const { data, error, loading } = useQuery(GET_PROPERTY_FORM);
   const [setPropertyFields] = useMutation(
     SET_PROPERTY_FORM_FIELDS_LOCAL_MUTATION
   );
+
+  const handleNextBtnClick = async (validateForm, errors, handleSubmit) => {
+    await validateForm();
+    toastErrors(errors);
+    handleSubmit(); // fires Formik onSubmit on success
+  };
   const submitStep = fieldValues => {
-    console.log("Step 2 field values => ", fieldValues);
-    //ToDo submit values to local apollo store
     setPropertyFields({
       variables: {
         fields: {
@@ -100,9 +96,9 @@ const Step2 = props => {
     // maybe do a local-state save on back
     props.navigation.goBack(null);
   };
+
   if (loading) return <Loader />;
   if (error) return <Error error={error} />;
-  console.log("values data initial => ", data);
   if (!data)
     return (
       <View>
@@ -110,20 +106,14 @@ const Step2 = props => {
       </View>
     );
   const initialValues = {
-    // accommodation: [
-    //   // {
-    //   //   ...defaultAccomodation
-    //   // }
-    // ]
     accommodation: data.addPropertyForm.accommodation
-    // ...data.addPropertyForm.accommodation
   };
-  // ToDo: initial values will actually come from the local query and get the specific info that we have
   return (
     <Formik
       initialValues={initialValues}
+      validateOnMount={true}
       onSubmit={submitStep}
-      validationSchema={ADD_PROPERTY_STEP_1_CONF.validationSchema}
+      validationSchema={ADD_PROPERTY_STEP_2_CONF.validationSchema}
     >
       {formikProps => {
         const {
@@ -133,55 +123,61 @@ const Step2 = props => {
           values,
           errors,
           touched,
-          submitCount
+          submitCount,
+          validateForm
         } = formikProps;
         return (
-          <Container>
-            <Header>
-              <Text>Add Accommodation For Property</Text>
-            </Header>
-            <Content>
-              <FormikForm style={styles.form}>
-                <FieldArray name="accommodation">
-                  {({
-                    move,
-                    swap,
-                    push,
-                    insert,
-                    unshift,
-                    pop,
-                    form,
-                    remove,
-                    replace
-                  }) => {
-                    console.log(" values => ", values);
-                    console.log(" errors => ", errors);
-                    console.log(" touched => ", touched);
-                    return (
-                      <Form>
-
-
-                        <AccommodationCreator
-                          items={values.accommodation}
-                          replace={replace}
-                          push={push}
-                          remove={remove}
-                        />
-                      </Form>
-                    );
-                  }}
-                </FieldArray>
-              </FormikForm>
-            </Content>
-            <Footer style={styles.footer}>
-              <Button onPress={previousStep} style={styles.action}>
-                <Text style={styles.btnText}>Back</Text>
-              </Button>
-              <Button onPress={handleSubmit} style={styles.action}>
-                <Text style={styles.btnText}>Next</Text>
-              </Button>
-            </Footer>
-          </Container>
+          <Root>
+            <Container>
+              <Header>
+                <Text>Add Accommodation For Property</Text>
+              </Header>
+              <Content>
+                <FormikForm style={styles.form}>
+                  <FieldArray name="accommodation">
+                    {({
+                      move,
+                      swap,
+                      push,
+                      insert,
+                      unshift,
+                      pop,
+                      form,
+                      remove,
+                      replace
+                    }) => {
+                      console.log(" values => ", values);
+                      console.log(" errors => ", errors);
+                      console.log(" touched => ", touched);
+                      return (
+                        <Form>
+                          <AccommodationCreator
+                            items={values.accommodation}
+                            replace={replace}
+                            push={push}
+                            remove={remove}
+                          />
+                        </Form>
+                      );
+                    }}
+                  </FieldArray>
+                </FormikForm>
+              </Content>
+              <Footer style={styles.footer}>
+                <Button onPress={previousStep} style={styles.action}>
+                  <Text style={styles.btnText}>Back</Text>
+                </Button>
+                <Button
+                  onPress={() =>
+                    handleNextBtnClick(validateForm, errors, handleSubmit)
+                  }
+                  style={styles.action}
+                >
+                  <Text style={styles.btnText}>Next</Text>
+                </Button>
+              </Footer>
+            </Container>
+          </Root>
         );
       }}
     </Formik>

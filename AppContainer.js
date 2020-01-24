@@ -8,6 +8,10 @@ import { CookiesProvider } from "react-cookie";
 import AppNavigatorContainer from "./navigation/AppNavigator";
 import SubscriptionsProvider from "./subscriptions";
 import client from "./apollo/client";
+
+import Constants from "expo-constants";
+import * as Permissions from "expo-permissions";
+
 // import OpenChats from "./components/OpenChats";
 import OpenChats from "./components/OpenChats/index";
 import NavigationService from "./services/navigationService";
@@ -38,6 +42,24 @@ const App = props => {
     ]);
   };
 
+  const getPermissionAsync = async () => {
+    console.group("DEEBUG ALL PERMISSIONS");
+    const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+    const notificationPermissions = await Permissions.askAsync(
+      Permissions.NOTIFICATIONS
+    );
+    console.log("getPermissionAsync status => ", status);
+    if (status !== "granted") {
+      alert("Sorry, we need camera roll permissions to make this work!");
+    }
+    console.log("notificationPermissions => ", notificationPermissions);
+    console.log("notificationPermissions => ", notificationPermissions);
+    console.log("Constants.platform => ", Constants.platform);
+    console.log("Camera Permissions => ", Permissions.CAMERA_ROLL);
+
+    console.groupEnd();
+  };
+
   const handleLoadingError = () => {
     // ...
   };
@@ -64,11 +86,16 @@ const App = props => {
     }
     return route.routeName;
   }
+  getPermissionAsync();
 
   if (showAppLoader()) {
     return (
       <AppLoading
-        startAsync={loadResourcesAsync}
+        // startAsync={loadResourcesAsync}
+        startAsync={() => {
+          loadResourcesAsync();
+          getPermissionAsync();
+        }}
         onError={handleLoadingError}
         onFinish={handleFinishLoading}
       />

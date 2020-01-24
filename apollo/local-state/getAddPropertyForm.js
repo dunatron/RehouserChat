@@ -20,6 +20,8 @@ const GET_PROPERTY_FORM = gql`
         expenses
         description
       }
+      outdoorFeatures
+      indoorFeatures
     }
   }
 `;

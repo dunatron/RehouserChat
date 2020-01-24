@@ -19,7 +19,7 @@ import { Text, View } from "native-base";
 
 // export default FormikErrors;
 
-const ListNestedValues = ({ errors, depth }) => {
+const ListNestedValues = ({ errors, depth = 1 }) => {
   const nestedType = Object.prototype.toString.call(errors);
   switch (nestedType) {
     case "[object Object]": {
@@ -34,37 +34,87 @@ const ListNestedValues = ({ errors, depth }) => {
   }
 };
 
+const pixelDepth = depth => depth * 4;
+
 /**
  *
  * The path thing will work well, path = path + new key continue
  */
-export const ListFormikErrors = ({ errors, depth, touched }) => {
+export const ListFormikErrors = ({ errors, depth = 1, touched }) => {
   if (!errors) return null;
   return Object.entries(errors).map(([key, val], idx) => {
     return (
-      <Text key={idx} style={{ display: "block", color: "red" }}>
-        {key}
+      <Text
+        key={idx}
+        style={{
+          display: "flex",
+          // color: "red",
+          paddingLeft: 100,
+          padding: 100,
+          margin: 100
+          // paddingLeft: `${pixelDepth(depth)}pt`
+          // paddingLeft: "100px"
+        }}
+      >
+        {/* {key} */}
+        <RenderKey keyVal={key} />
         {typeof val === "object" ? (
           <ListNestedValues errors={val} depth={depth + 1} />
         ) : (
-          val
+          <RenderKeyVal val={val} />
         )}
       </Text>
     );
   });
 };
-const ListArrayErrorValues = ({ errors, depth }) => {
+
+const RenderKey = ({ keyVal }) => {
+  return (
+    <Text
+      style={{
+        color: "red",
+        width: "100%",
+        fontWeight: "900"
+      }}
+    >
+      {keyVal}:{"\n"}
+    </Text>
+  );
+};
+const RenderKeyVal = ({ val }) => {
+  return (
+    <Text
+      style={{
+        display: "flex",
+        color: "black",
+        padding: -100,
+        margin: 100,
+        width: "100%",
+        fontWeight: "600"
+      }}
+    >
+      {val}
+      {"\n"}
+    </Text>
+  );
+};
+const ListArrayErrorValues = ({ errors, depth = 1 }) => {
   return errors.map((val, idx) => {
     return (
       <Text
         key={idx}
-        style={{ display: "block", color: "red", paddingLeft: 100 }}
+        style={{
+          display: "flex",
+          // color: "red",
+          paddingLeft: 100
+          // paddingLeft: `${pixelDepth(depth)}pt`
+        }}
       >
-        {idx + 1}
+        <RenderKey keyVal={idx + 1} />
         {typeof val === "object" ? (
           <ListNestedValues errors={val} depth={depth + 1} />
         ) : (
-          val
+          <RenderKeyVal val={val} />
         )}
       </Text>
     );

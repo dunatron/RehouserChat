@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, createRef } from "react";
+import { toastErrors } from "../../utils/toastErrors";
 import styles from "./Styles";
 import {
   Container,
@@ -8,7 +9,9 @@ import {
   View,
   Button,
   List,
-  Text
+  Text,
+  Root,
+  DatePicker
 } from "native-base";
 import { Formik } from "formik";
 import { compose } from "recompose";
@@ -22,22 +25,42 @@ import { TextField } from "react-native-material-textfield";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import { GET_PROPERTY_FORM } from "../../apollo/local-state";
 import { SET_PROPERTY_FORM_FIELDS_LOCAL_MUTATION } from "../../apollo/resolvers";
-import FormikInputField from "../../components/Inputs/FormikInputField";
+import FormikFieldByType from "../../components/Inputs/FormikFieldByType";
 
 const ADD_PROPERTY_STEP_1_CONF = {
   validationSchema: Yup.object().shape({
-    location: Yup.string()
-      .required("location is required")
-      .min(2, "pretty sure this isnt a location"),
-    locationLat: Yup.string()
-      .required("latitude of the property is required")
-      .min(2, "pretty sure this isnt a latitude coordinate")
+    // location: Yup.string()
+    //   .required("location is required")
+    //   .min(2, "pretty sure this isnt a location"),
+    // locationLat: Yup.string()
+    //   .required("latitude of the property is required")
+    //   .min(2, "pretty sure this isnt a latitude coordinate"),
+    // moveInDate: Yup.date().required("move in date must be specified"),
+    // expiryDate: Yup.date().required("move out date must be spcified")
   }),
   initialValues: {
     // location: "Dunedin",
     // locationLat: "1787.9029408"
   },
   fields: [
+    {
+      label: "Move in date",
+      name: "moveInDate",
+      placeholder: "2018-05-09T12:00:00.000Z",
+      keyboardType: "date",
+      defaultDate: new Date(), // todays date
+      minimumDate: new Date() // todays date
+      // maximumDate: new Date()// no need for a maximum date
+    },
+    {
+      label: "Move out date",
+      name: "expiryDate",
+      placeholder: "2018-05-09T12:00:00.000Z",
+      keyboardType: "date",
+      defaultDate: new Date(), // todays date
+      minimumDate: new Date() // todays date
+      // maximumDate: new Date()// no need for a maximum date
+    },
     {
       label: "Location",
       name: "location",
@@ -59,32 +82,38 @@ const ADD_PROPERTY_STEP_1_CONF = {
     {
       label: "headline",
       name: "headline",
-      keyboardType: "default"
+      keyboardType: "default",
+      placeholder: "Headline for advertisement"
     },
     {
       label: "rooms",
       name: "rooms",
-      keyboardType: "numeric"
+      keyboardType: "numeric",
+      placeholder: "3"
     },
     {
       label: "bathrooms",
       name: "bathrooms",
-      keyboardType: "numeric"
+      keyboardType: "numeric",
+      placeholder: "1"
     },
     {
       label: "garageSpaces",
       name: "garageSpaces",
-      keyboardType: "numeric"
+      keyboardType: "numeric",
+      placeholder: "1"
     },
     {
       label: "carportSpaces",
       name: "carportSpaces",
-      keyboardType: "numeric"
+      keyboardType: "numeric",
+      placeholder: "2"
     },
     {
       label: "offStreetSpaces",
       name: "offStreetSpaces",
-      keyboardType: "numeric"
+      keyboardType: "numeric",
+      placeholder: "2"
     }
   ]
 };
@@ -115,9 +144,13 @@ const Step1 = props => {
   const [setPropertyFields] = useMutation(
     SET_PROPERTY_FORM_FIELDS_LOCAL_MUTATION
   );
+
+  const handleNextBtnClick = async (validateForm, errors, handleSubmit) => {
+    await validateForm();
+    toastErrors(errors);
+    handleSubmit(); // fires Formik onSubmit on success
+  };
   const submitStep = fieldValues => {
-    //ToDo submit values to local apollo store
-    console.log("The values => ", fieldValues);
     setPropertyFields({
       variables: {
         fields: {
@@ -126,48 +159,6 @@ const Step1 = props => {
       }
     });
     props.navigation.navigate("AddPropertyStep2");
-    //setPropertyFields
-    // openChat
-    //variables: { chat: node.chat }
-    // openChat({
-    //   variables: {
-    //     // __typename: "ADD_PROPERTY_FORM",
-    //     // rent: "9000"
-    //     chat: {
-    //       __typename: "Chat",
-    //       id: "ck47myuslpyop0b09hj01miiw",
-    //       name: "CHat room 0",
-    //       participants: [
-    //         {
-    //           __typename: "User",
-    //           firstName: "Heath",
-    //           id: "ck2k0095umh5l0b099487efci",
-    //           lastName: "Dunlop",
-    //           profilePhoto: {
-    //             __typename: "File",
-    //             filename: "12421.jpg",
-    //             url:
-    //               "https://res.cloudinary.com/dkhe0hx1r/image/upload/v1572848115/goi8er8r9lep8ej3ilcf.jpg"
-    //           }
-    //         },
-    //         {
-    //           __typename: "User",
-    //           firstName: "Cunt",
-    //           id: "ck47mygbypynz0b0935rz9gcu",
-    //           lastName: "Face",
-    //           profilePhoto: {
-    //             __typename: "File",
-    //             filename: "1920x1080-studentProfile.jpg",
-    //             url:
-    //               "https://res.cloudinary.com/dkhe0hx1r/image/upload/v1576461678/q35s5qeszsd6elsffwnf.jpg"
-    //           }
-    //         }
-    //       ],
-    //       type: "PEER"
-    //     }
-    //   }
-    // });
-    // props.navigation.navigate("AddPropertyStep2");
   };
   const exitAddingProperty = () => {
     props.navigation.goBack(null);
@@ -176,6 +167,7 @@ const Step1 = props => {
     <Formik
       initialValues={ADD_PROPERTY_STEP_1_CONF.initialValues}
       onSubmit={submitStep}
+      validateOnMount={true}
       validationSchema={ADD_PROPERTY_STEP_1_CONF.validationSchema}
     >
       {formikProps => {
@@ -186,61 +178,60 @@ const Step1 = props => {
           values,
           errors,
           touched,
-          submitCount
+          submitCount,
+          validateForm,
+          setFieldValue
         } = formikProps;
         return (
-          <Container>
-            <Header>
-              <Text>Property Location & details</Text>
-            </Header>
+          <Root>
+            <Container>
+              <Header>
+                <Text>Property Location & details</Text>
+              </Header>
+              <Content>
+                <FormikForm style={styles.form}>
+                  <List
+                    dataArray={ADD_PROPERTY_STEP_1_CONF.fields}
+                    keyExtractor={item => String(item.name)}
+                    itemDivider={false}
+                    renderRow={item => (
+                      <FormikFieldByType
+                        setFieldValue={setFieldValue}
+                        key={item.name}
+                        config={item}
+                        value={values[item.name]}
+                        error={errors[item.name]}
+                        touched={touched[item.name]}
+                        submitCount={submitCount}
+                      />
+                    )}
+                  />
+                </FormikForm>
+              </Content>
 
-            <Content>
-              <FormikForm style={styles.form}>
-                <List
-                  dataArray={ADD_PROPERTY_STEP_1_CONF.fields}
-                  keyExtractor={item => String(item.name)}
-                  itemDivider={false}
-                  renderRow={item => (
-                    <FieldByType
-                      key={item.name}
-                      config={item}
-                      error={errors[item.name]}
-                      touched={touched[item.name]}
-                      submitCount={submitCount}
-                    />
-                  )}
-                />
-              </FormikForm>
-            </Content>
-
-            <Footer style={styles.footer}>
-              <Button
-                onPress={exitAddingProperty}
-                title="Next"
-                style={styles.action}
-              >
-                <Text style={styles.btnText}>Exit</Text>
-              </Button>
-              <Button onPress={handleSubmit} title="Next" style={styles.action}>
-                <Text style={styles.btnText}>Next</Text>
-              </Button>
-            </Footer>
-          </Container>
+              <Footer style={styles.footer}>
+                <Button
+                  onPress={exitAddingProperty}
+                  title="Next"
+                  style={styles.action}
+                >
+                  <Text style={styles.btnText}>Exit</Text>
+                </Button>
+                <Button
+                  onPress={() =>
+                    handleNextBtnClick(validateForm, errors, handleSubmit)
+                  }
+                  style={styles.action}
+                >
+                  <Text style={styles.btnText}>Next</Text>
+                </Button>
+              </Footer>
+            </Container>
+          </Root>
         );
       }}
     </Formik>
   );
-};
-
-// Material implementstion
-const FieldByType = ({ config, error, touched, submitCount }) => {
-  const generateError = () => {
-    if (error && touched) return error;
-    if (error && submitCount > 0) return error;
-    return undefined;
-  };
-  const errorText = generateError();
-  return <FormikInputField {...config} error={errorText} />;
 };
 
 Step1.navigationOptions = {

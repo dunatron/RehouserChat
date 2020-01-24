@@ -64,3 +64,11 @@ query GET_ENUM($name:String!) {
 - [Fantastic Formic Docs](https://jaredpalmer.com/formik/docs/api/fieldarray)
 - [formik field array best practises](https://jaredpalmer.com/formik/docs/api/fieldarray)
 - [Formik example, just remember onClick => onPress 😜](https://codesandbox.io/s/formik-fieldarray-materialui-f7rkz?from-embed)
+
+## External Bugs
+
+- react-native-image-picker
+  1. Downgrade to version "react-native-image-picker": "0.28.0",(in package.json)
+  2. Install library using npm install
+  3. Link using `react-native link react-native-image-picker`
+  4. Do pod install inside ios folder
