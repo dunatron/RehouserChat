@@ -8,6 +8,7 @@ const GET_PROPERTY_FORM = gql`
       location
       locationLat
       locationLng
+      files
       rooms
       moveInDate
       expiryDate

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
 import * as Permissions from "expo-permissions";
+import { useQuery, useMutation } from "@apollo/react-hooks";
 import {
   Root,
   Container,
@@ -14,12 +15,15 @@ import {
   Text,
   Form
 } from "native-base";
+import { Image } from "react-native";
 import { GET_PROPERTY_FORM } from "../../apollo/local-state";
 import { SET_PROPERTY_FORM_FIELDS_LOCAL_MUTATION } from "../../apollo/resolvers";
+import { cameraPermissions } from "../../utils/phonePermissions";
+import styles from "./Styles";
 import Loader from "../../components/Loader";
 import Error from "../../components/Error";
 
-const RehouserImagePicker = () => {
+const Step4 = props => {
   const [image, setImage] = useState();
 
   const { data, error, loading } = useQuery(GET_PROPERTY_FORM);
@@ -41,28 +45,13 @@ const RehouserImagePicker = () => {
     //   }
     // });
     console.log("Submitting image step => ", image);
-    props.navigation.navigate("AddPropertyStep3");
+    props.navigation.navigate("AddPropertyFinalStep");
   };
 
-  const getPermissionAsync = async () => {
-    console.group("DEEBUG ALL PERMISSIONS");
-    const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-    const notificationPermissions = await Permissions.askAsync(
-      Permissions.NOTIFICATIONS
-    );
-    console.log("getPermissionAsync status => ", status);
-    if (status !== "granted") {
-      alert("Sorry, we need camera roll permissions to make this work!");
-    }
-    console.log("notificationPermissions => ", notificationPermissions);
-    console.log("notificationPermissions => ", notificationPermissions);
-    console.log("Constants.platform => ", Constants.platform);
-    console.log("Camera Permissions => ", Permissions.CAMERA_ROLL);
-
-    console.groupEnd();
+  const previousStep = () => {
+    // maybe do a local-state save on back
+    props.navigation.goBack(null);
   };
-
-  getPermissionAsync();
 
   const _pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -72,9 +61,18 @@ const RehouserImagePicker = () => {
       quality: 1
     });
 
-    console.log(result);
+    // Image has been picked, save it to the apollo cache
+
+    // console.log(result);
 
     if (!result.cancelled) {
+      setPropertyFields({
+        variables: {
+          fields: {
+            files: [result]
+          }
+        }
+      });
       //   this.setState({ image: result.uri });
       setImage(result);
     }
@@ -82,6 +80,8 @@ const RehouserImagePicker = () => {
 
   if (loading) return <Loader />;
   if (error) return <Error error={error} />;
+
+  cameraPermissions();
 
   // add image to form in cache and query call. Make it an array
   // no need to use formik and its ugly render props
@@ -118,4 +118,11 @@ const RehouserImagePicker = () => {
   );
 };
 
-export default RehouserImagePicker;
+Step4.navigationOptions = {
+  title: "Add Property 2/3",
+  navigationOptions: {
+    tabBarLabel: "Adding Properties"
+  }
+};
+
+export default Step4;

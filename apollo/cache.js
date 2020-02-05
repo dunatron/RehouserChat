@@ -16,6 +16,7 @@ const ADD_PROPERTY_FORM = {
   carportSpaces: "",
   garageSpaces: "",
   offStreetSpaces: "",
+  files: [],
   accommodation: [
     {
       __typename: "Accommodation",
@@ -26,7 +27,7 @@ const ADD_PROPERTY_FORM = {
     }
   ],
   outdoorFeatures: [],
-  indoorFeatures: [],
+  indoorFeatures: []
   // outdoorFeatures: {
   //   set: []
   // },
@@ -57,7 +58,7 @@ const ADD_PROPERTY_FORM = {
   // accommodation: {
   //   create: []
   // },
-  files: []
+  // files: []
 };
 
 // lets write some logic for isLoggedIn
