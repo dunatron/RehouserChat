@@ -55,7 +55,7 @@ const AuthLoadingScreen = props => {
       <ActivityIndicator />
       <StatusBar barStyle="default" />
       {/* {_bootstrapAsync()} */}
-      <Text>Checking credentials</Text>
+      <Text>Checking for previous token. render either App/Auth</Text>
     </View>
   );
 };

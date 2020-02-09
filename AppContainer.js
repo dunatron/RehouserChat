@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Platform, StatusBar, StyleSheet, View } from "react-native";
+import { container, Container } from "native-base";
 import { AppLoading } from "expo";
 import { Asset } from "expo-asset";
 import * as Font from "expo-font";
@@ -73,6 +74,8 @@ const App = props => {
   }
   // getPermissionAsync();
 
+  console.log("O dear => A memory leak");
+
   if (showAppLoader()) {
     return (
       <AppLoading
@@ -89,25 +92,25 @@ const App = props => {
   };
 
   return (
-    <CookiesProvider>
-      <View style={styles.container}>
-        {Platform.OS === "ios" && <StatusBar barStyle="default" />}
-        <SubscriptionsProvider {...shareableRootProps} />
-        <OpenChats {...shareableRootProps} />
-        <AppNavigatorContainer
-          ref={navigatorRef => {
-            NavigationService.setTopLevelNavigator(navigatorRef);
-          }}
-          screenProps={{
-            ...shareableRootProps
-          }}
-          onNavigationStateChange={(prevState, currentState, action) => {
-            const currentRouteName = getActiveRouteName(currentState);
-            setActiveRouteName(currentRouteName);
-          }}
-        />
-      </View>
-    </CookiesProvider>
+    <Container style={styles.container}>
+      {/* https://docs.nativebase.io/docs/GetStarted.html */}
+      {/* <View style={styles.container}> */}
+      {Platform.OS === "ios" && <StatusBar barStyle="default" />}
+      <SubscriptionsProvider {...shareableRootProps} />
+      <OpenChats {...shareableRootProps} />
+      <AppNavigatorContainer
+        ref={navigatorRef => {
+          NavigationService.setTopLevelNavigator(navigatorRef);
+        }}
+        screenProps={{
+          ...shareableRootProps
+        }}
+        onNavigationStateChange={(prevState, currentState, action) => {
+          const currentRouteName = getActiveRouteName(currentState);
+          setActiveRouteName(currentRouteName);
+        }}
+      />
+    </Container>
   );
 };
 
