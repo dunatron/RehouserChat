@@ -27,7 +27,7 @@
     "graphql-tag": "^2.10.1",
     "graphql-tools": "^4.0.4",
     "jwt-decode": "^2.2.0",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "lodash.range": "^3.2.0",
     "moment": "^2.24.0",
     "native-base": "^2.13.8",
